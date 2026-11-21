@@ -89,12 +89,12 @@ MCP client (stdio JSON-RPC)
    │
    ├── tools: chart_read, chart_patch, finding_upsert, finding_list,
    │          finding_resolve, visit_record, visit_list, waiver_add,
-   │          sync_pull, sync_push, export_text, score_compute
+   │          sync_pull, sync_push, export_text, import_text, score_compute
    └── resources: slopdrop://chart, slopdrop://findings, slopdrop://visits/latest
    │
 SQLite (WAL, busy_timeout, BEGIN IMMEDIATE)
    │
-.slopdrop/project.db  ←→  .slopdrop/chart.md, findings.jsonl, visits/*.md
+.slopdrop/project.db  ←→  .slopdrop/chart.md, findings.jsonl, waivers.json, visits.jsonl, visits/*.md
 ```
 
 Rules:

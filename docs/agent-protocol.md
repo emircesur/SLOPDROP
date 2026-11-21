@@ -129,7 +129,11 @@ Pure function over the same scoring code the CLI uses. `estimates` lists dimensi
 
 ### `export_text`
 
-`{ dir? }` → `{ written: ["chart.md", "findings.jsonl", "waivers.json"] }`. Refuses to overwrite a file with uncommitted changes it did not generate; prints the diff instead.
+`{ dir? }` → `{ written: ["chart.md", "findings.jsonl", "waivers.json", "visits.jsonl", "visits/<stamp>-<scope>-<id>.md"] }`. Overwrites the artifacts it owns; report files are written once and never overwritten.
+
+### `import_text`
+
+`{ dir? }` → `{ chart: boolean, findings: number, waivers: number, visits: number }`. Rebuilds the database from the committed artifacts: chart fields are merged, findings upsert by fingerprint, only accepted waivers are imported, and visits are inserted when `(scope, createdAt)` is new. Idempotent: a second run returns zeros and writes no events.
 
 ## Resources
 
@@ -152,7 +156,7 @@ Resources are read-only. Anything that mutates goes through a tool, so it can be
 → tools/list
 ← [ project_open, chart_read, chart_patch, finding_upsert, finding_list,
     finding_resolve, visit_record, visit_list, waiver_add, sync_pull,
-    sync_push, score_compute, export_text ]
+    sync_push, score_compute, export_text, import_text ]
 → tools/call chart_read
 ← { data: {…}, markdown: "# Chart …", rev: 7 }
 → tools/call finding_upsert { rule: "ui.nested-cards", file: "src/Card.tsx", line: 118, … }

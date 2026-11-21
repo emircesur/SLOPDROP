@@ -1,9 +1,9 @@
 // Tool implementations. Everything mutating goes through `transaction` and
 // writes exactly one event.
 
-import { writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { computeScore, fingerprint, normalizePath } from "../../core/index.mjs";
+import { computeScore, fingerprint, hash64, normalizePath } from "../../core/index.mjs";
 import { bumpRev, ensureProject, eventByIdem, now, recordEvent, transaction, ulid } from "./db.mjs";
 
 export class ToolError extends Error {
@@ -26,24 +26,24 @@ const DEFAULT_CHART = {
 };
 
 function chartMarkdown(data) {
-  const list = (items, empty = "—") => (items && items.length ? items.map((i) => `- ${i}`).join("\n") : empty);
+  const list = (items, empty = EMPTY_MARK) => (items && items.length ? items.map((i) => `- ${i}`).join("\n") : empty);
   return [
     "# Chart",
     "",
-    `Stack: ${data.stack || "unknown"}`,
-    `Platforms: ${(data.platforms || []).join(", ") || "unknown"}`,
+    `Stack: ${data.stack || EMPTY_MARK}`,
+    `Platforms: ${(data.platforms || []).join(", ") || EMPTY_MARK}`,
     `Visits: ${data.visits === false ? "off" : "on"}`,
     "",
     "## Top tasks",
-    data.tasks?.length ? data.tasks.map((task, i) => `${i + 1}. ${task}`).join("\n") : "1. Unknown",
+    data.tasks?.length ? data.tasks.map((task, i) => `${i + 1}. ${task}`).join("\n") : EMPTY_MARK,
     "",
     "## Users and context",
-    data.users || "Unknown",
+    data.users || EMPTY_MARK,
     "",
     "## Brand",
-    `- Color: ${data.brand?.color || "unknown"}`,
-    `- Type: ${data.brand?.type || "unknown"}`,
-    `- Keep: ${(data.brand?.keep || []).join("; ") || "—"}`,
+    `- Color: ${data.brand?.color || EMPTY_MARK}`,
+    `- Type: ${data.brand?.type || EMPTY_MARK}`,
+    `- Keep: ${(data.brand?.keep || []).join("; ") || EMPTY_MARK}`,
     "",
     "## Accepted",
     list(data.accepted),
@@ -54,8 +54,77 @@ function chartMarkdown(data) {
   ].join("\n");
 }
 
-function readChart(db, project) {
-  let row = db.prepare("SELECT * FROM documents WHERE project_id = ? AND kind = 'chart' AND slug = 'default'").get(project.id);
+const EMPTY_MARK = "—";
+
+/** Parse the committed chart.md back into fields. Tolerant, not a markdown parser. */
+export function parseChartMarkdown(markdown) {
+  const data = { ...DEFAULT_CHART, brand: { ...DEFAULT_CHART.brand }, tasks: [], accepted: [], offLimits: [] };
+  const tasks = [];
+  const accepted = [];
+  const offLimits = [];
+  const keep = [];
+  let section = null;
+
+  for (const rawLine of String(markdown).split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    if (line.startsWith("Stack:")) {
+      const value = line.slice("Stack:".length).trim();
+      data.stack = value === EMPTY_MARK ? "" : value;
+      continue;
+    }
+    if (line.startsWith("Platforms:")) {
+      data.platforms = line
+        .slice("Platforms:".length)
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s && s !== EMPTY_MARK);
+      continue;
+    }
+    if (line.startsWith("Visits:")) {
+      data.visits = !/off/i.test(line.slice("Visits:".length));
+      continue;
+    }
+    if (line.startsWith("## ")) {
+      section = line.slice(3).trim().toLowerCase();
+      continue;
+    }
+    if (line === EMPTY_MARK) continue;
+
+    if (section === "top tasks" && /^\d+\.\s+/.test(line)) {
+      tasks.push(line.replace(/^\d+\.\s+/, "").trim());
+    } else if (section === "users and context") {
+      data.users = data.users ? `${data.users} ${line}` : line;
+    } else if (section === "brand" && line.startsWith("- Color:")) {
+      const value = line.slice("- Color:".length).trim();
+      data.brand.color = value === EMPTY_MARK ? "" : value;
+    } else if (section === "brand" && line.startsWith("- Type:")) {
+      const value = line.slice("- Type:".length).trim();
+      data.brand.type = value === EMPTY_MARK ? "" : value;
+    } else if (section === "brand" && line.startsWith("- Keep:")) {
+      keep.push(
+        ...line
+          .slice("- Keep:".length)
+          .split(";")
+          .map((s) => s.trim())
+          .filter((s) => s && s !== EMPTY_MARK),
+      );
+    } else if (section === "accepted" && line.startsWith("- ")) {
+      accepted.push(line.slice(2).trim());
+    } else if (section === "off limits" && line.startsWith("- ")) {
+      offLimits.push(line.slice(2).trim());
+    }
+  }
+
+  data.tasks = tasks;
+  data.accepted = accepted;
+  data.offLimits = offLimits;
+  data.brand.keep = keep;
+  return data;
+}
+
+function readChart(db, project) {  let row = db.prepare("SELECT * FROM documents WHERE project_id = ? AND kind = 'chart' AND slug = 'default'").get(project.id);
   if (!row) {
     const at = now();
     const id = ulid();
@@ -283,6 +352,7 @@ export function createTools({ db, project, actor }) {
         severity: row.severity,
         file: row.file,
         line: row.line,
+        snippet: row.snippet,
         status: row.status,
         message: row.message,
         fix: row.fix,
@@ -457,6 +527,7 @@ export function createTools({ db, project, actor }) {
 
   tools.export_text = ({ dir } = {}) => {
     const target = dir ?? project.dir;
+    mkdirSync(join(target, "visits"), { recursive: true });
     const chart = readChart(db, project);
     const written = [];
 
@@ -485,7 +556,204 @@ export function createTools({ db, project, actor }) {
     );
     written.push(waiverPath);
 
+    const visits = db.prepare("SELECT * FROM visits WHERE project_id = ? ORDER BY created_at").all(project.id);
+    const visitLines = [];
+    for (const visit of visits) {
+      const stamp = visit.created_at.slice(0, 16).replace(/[:T]/g, "-");
+      const fileName = `${stamp}-${visit.scope}-${visit.id.slice(-4)}.md`;
+      const filePath = join(target, "visits", fileName);
+      if (!existsSync(filePath)) writeFileSync(filePath, visit.report_md, "utf8");
+      written.push(filePath);
+      visitLines.push(
+        JSON.stringify({
+          scope: visit.scope,
+          command: visit.command,
+          band: visit.band,
+          total: visit.total,
+          scores: JSON.parse(visit.scores),
+          createdAt: visit.created_at,
+          reportPath: `visits/${fileName}`,
+        }),
+      );
+    }
+    const visitsPath = join(target, "visits.jsonl");
+    writeFileSync(visitsPath, visitLines.join("\n") + (visitLines.length ? "\n" : ""), "utf8");
+    written.push(visitsPath);
+
     return { written };
+  };
+
+  tools.import_text = ({ dir } = {}) => {
+    const target = dir ?? project.dir;
+    const chartPath = join(target, "chart.md");
+    if (!existsSync(chartPath)) {
+      throw new ToolError(-32602, `no chart.md in ${target}`, "Run sync export first, or commit a chart.");
+    }
+
+    const incoming = parseChartMarkdown(readFileSync(chartPath, "utf8"));
+    const counts = { chart: false, findings: 0, waivers: 0, visits: 0 };
+
+    transaction(db, () => {
+      const chart = readChart(db, project);
+      const changed = {};
+      for (const key of Object.keys(DEFAULT_CHART)) {
+        if (JSON.stringify(chart.data[key]) !== JSON.stringify(incoming[key])) changed[key] = incoming[key];
+      }
+      const changedKeys = Object.keys(changed);
+      if (changedKeys.length) {
+        const rev = bumpRev(db, project.id);
+        const nextFieldRevs = { ...chart.fieldRevs };
+        for (const key of changedKeys) nextFieldRevs[key] = rev;
+        db.prepare("UPDATE documents SET body = ?, field_revs = ?, rev = ?, updated_at = ?, updated_by = ? WHERE id = ?").run(
+          JSON.stringify({ ...DEFAULT_CHART, ...chart.data, ...changed }),
+          JSON.stringify(nextFieldRevs),
+          rev,
+          now(),
+          actor.id,
+          chart.row.id,
+        );
+        recordEvent(db, {
+          projectId: project.id,
+          actorId: actor.id,
+          entity: "chart",
+          entityId: chart.row.id,
+          op: "update",
+          patch: changed,
+          baseRev: chart.row.rev,
+          rev,
+          idem: `import-chart-${hash64(JSON.stringify(changed))}-${rev}`,
+        });
+        counts.chart = true;
+      }
+
+      const findingsPath = join(target, "findings.jsonl");
+      if (existsSync(findingsPath)) {
+        for (const line of readFileSync(findingsPath, "utf8").split(/\r?\n/)) {
+          if (!line.trim()) continue;
+          let finding;
+          try {
+            finding = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          if (!finding.rule || !finding.file || !finding.snippet) continue;
+          const id = fingerprint({ rule: finding.rule, file: finding.file, snippet: finding.snippet });
+          const existing = db.prepare("SELECT id FROM findings WHERE project_id = ? AND fingerprint = ?").get(project.id, id);
+          if (existing) continue;
+          const at = finding.firstSeen ?? now();
+          db.prepare(
+            `INSERT INTO findings (id, project_id, fingerprint, rule, family, severity, file, line, snippet, message, fix, status, first_seen, last_seen, visit_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          ).run(
+            ulid(),
+            project.id,
+            id,
+            finding.rule,
+            finding.rule.split(".")[0],
+            finding.severity ?? "minor",
+            normalizePath(finding.file),
+            Number(finding.line) || 1,
+            String(finding.snippet).slice(0, 400),
+            finding.message ?? "",
+            finding.fix ?? "",
+            finding.status ?? "open",
+            at,
+            finding.lastSeen ?? at,
+            null,
+          );
+          counts.findings += 1;
+        }
+      }
+
+      const waiverPath = join(target, "waivers.json");
+      if (existsSync(waiverPath)) {
+        let parsed = { waivers: [] };
+        try {
+          parsed = JSON.parse(readFileSync(waiverPath, "utf8"));
+        } catch {
+          parsed = { waivers: [] };
+        }
+        for (const waiver of parsed.waivers ?? []) {
+          if (!waiver.rule || !waiver.scope) continue;
+          const existing = db
+            .prepare("SELECT id FROM waivers WHERE project_id = ? AND rule = ? AND scope = ? AND status = 'accepted'")
+            .get(project.id, waiver.rule, waiver.scope);
+          if (existing) continue;
+          db.prepare(
+            `INSERT INTO waivers (id, project_id, rule, scope, reason, status, proposed_by, approved_by, created_at, approved_at)
+             VALUES (?, ?, ?, ?, ?, 'accepted', ?, ?, ?, ?)`,
+          ).run(
+            ulid(),
+            project.id,
+            waiver.rule,
+            waiver.scope,
+            waiver.reason ?? "imported",
+            actor.id,
+            waiver.approvedBy ?? "imported",
+            now(),
+            waiver.approvedAt ?? now(),
+          );
+          counts.waivers += 1;
+        }
+      }
+
+      const visitsPath = join(target, "visits.jsonl");
+      if (existsSync(visitsPath)) {
+        for (const line of readFileSync(visitsPath, "utf8").split(/\r?\n/)) {
+          if (!line.trim()) continue;
+          let visit;
+          try {
+            visit = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          if (!visit.scope || !visit.createdAt) continue;
+          const existing = db
+            .prepare("SELECT id FROM visits WHERE project_id = ? AND scope = ? AND created_at = ?")
+            .get(project.id, visit.scope, visit.createdAt);
+          if (existing) continue;
+
+          let report = visit.reportMd ?? "";
+          if (!report && visit.reportPath) {
+            const reportFile = join(target, visit.reportPath);
+            if (existsSync(reportFile)) report = readFileSync(reportFile, "utf8");
+          }
+
+          db.prepare(
+            `INSERT INTO visits (id, project_id, scope, command, band, total, scores, report_md, actor_id, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          ).run(
+            ulid(),
+            project.id,
+            visit.scope,
+            visit.command ?? "review",
+            visit.band ?? "smudged",
+            Number(visit.total) || 0,
+            JSON.stringify(visit.scores ?? {}),
+            report,
+            actor.id,
+            visit.createdAt,
+          );
+          counts.visits += 1;
+        }
+      }
+
+      if (counts.findings || counts.waivers || counts.visits) {
+        const rev = bumpRev(db, project.id);
+        recordEvent(db, {
+          projectId: project.id,
+          actorId: actor.id,
+          entity: "import",
+          entityId: "text",
+          op: "create",
+          patch: counts,
+          rev,
+          idem: `import-batch-${hash64(JSON.stringify(counts))}-${rev}`,
+        });
+      }
+    });
+
+    return counts;
   };
 
   tools.score_compute = ({ dimensions, estimates = [] } = {}) => computeScore({ dimensions, estimates });

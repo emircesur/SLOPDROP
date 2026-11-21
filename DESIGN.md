@@ -1065,6 +1065,7 @@ DB, insan için okunmaz. İnsan için doğru olan metindir:
 | `.slopdrop/chart.md` | insan + ajan, onaylı | evet |
 | `.slopdrop/findings.jsonl` | dedektör + ajan | evet (istenirse) |
 | `.slopdrop/visits/*.md` | ajan | evet |
+| `.slopdrop/visits.jsonl` | ajan (dışa aktarım) | evet |
 | `.slopdrop/waivers.json` | insan onaylı | evet |
 | `.slopdrop/project.db` | sunucu | hayır |
 | `.slopdrop/config.json` | insan | evet |

@@ -102,9 +102,15 @@ The event log is not an audit trail of user behavior; it is a change feed. It ca
 - `chart.md`: the whole chart, in the documented template, from the DB.
 - `findings.jsonl`: one JSON object per finding, sorted by severity and file, paths relative.
 - `waivers.json`: accepted waivers only; proposals stay in the DB.
-- `visits/<timestamp>-<scope>.md`: the reports exactly as recorded.
+- `visits.jsonl`: one line per visit with scope, command, band, total, scores, timestamp, and the path to its report.
+- `visits/<timestamp>-<scope>-<id>.md`: the reports exactly as recorded.
 
-`import_text` reads the same artifacts and creates the missing events. It is idempotent: an artifact that has not changed since the last import produces no events.
+`import_text` reads the same artifacts and rebuilds the database. It is idempotent: a file that has not changed since the last import produces no rows and no events.
+
+- The chart is parsed from its headings and merged field by field; only changed fields increment their revision.
+- Findings are upserted by `rule + file + snippet` fingerprint, so a line move does not duplicate one. Exported statuses are preserved.
+- Only accepted waivers are imported. A proposal never becomes accepted by an import.
+- Visits are inserted only when `(scope, createdAt)` is new; the report is read from its file if `reportMd` is absent.
 
 The bridge means a team can work without the daemon: commit the text, pull the text, re-import. The DB is a local accelerator, not a second source of truth.
 

@@ -156,6 +156,12 @@ Numbered files in `packages/mcp/migrations/`, applied forward inside a transacti
 {"version":1,"waivers":[{"rule":"ui.status-dot","scope":"src/legacy/**","reason":"status LED mirrors the hardware","approvedBy":"human:emir","approvedAt":"2026-11-20T…"}]}
 ```
 
+`visits.jsonl`:
+
+```json
+{"scope":"checkout","command":"treat","band":"smudged","total":17,"scores":{"taskPath":3,"truth":3,"nativeFit":3,"states":3,"access":2,"specificity":3},"createdAt":"2026-11-21T19:02:11.482Z","reportPath":"visits/2026-11-21-19-02-checkout-8f2a.md"}
+```
+
 `chart.md` is rendered from the document body; the template lives in `skills/slopdrop/reference/chart.md`.
 
 ## Invariants

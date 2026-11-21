@@ -138,11 +138,14 @@ test("score compute uses the shared core", async () => {
 
 test("export writes the committed text artifacts", async () => {
   const result = await tool("export_text", {});
-  assert.equal(result.written.length, 3);
+  assert.ok(result.written.length >= 5);
+  assert.ok(result.written.some((path) => path.endsWith("chart.md")));
+  assert.ok(result.written.some((path) => path.endsWith("findings.jsonl")));
+  assert.ok(result.written.some((path) => path.endsWith("waivers.json")));
+  assert.ok(result.written.some((path) => path.endsWith("visits.jsonl")));
   const chart = readFileSync(join(dir, ".slopdrop", "chart.md"), "utf8");
   assert.ok(chart.includes("Stack: React 19"));
   assert.ok(chart.includes("Platforms: web"));
-  assert.ok(existsSync(join(dir, ".slopdrop", "findings.jsonl")));
   const waivers = JSON.parse(readFileSync(join(dir, ".slopdrop", "waivers.json"), "utf8"));
   assert.equal(waivers.waivers.length, 0, "proposed waivers are not exported");
 });
@@ -151,4 +154,88 @@ test("unknown tools fail cleanly", async () => {
   const response = await call("tools/call", { name: "nope", arguments: {} });
   assert.equal(response.error.code, -32601);
   assert.ok(response.error.data.supported.includes("chart_read"));
+});
+
+test("the text bridge rebuilds a lost database", async () => {
+  const root = mkdtempSync(join(process.cwd(), ".tmp-mcp-rt-"));
+  const make = () => createHandler({ projectRoot: root, actorId: "human:test", actorKind: "human", client: "cli" });
+  const invoke = async (instance, name, args = {}) => {
+    const response = await instance.handle({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name, arguments: args } });
+    if (response.error) throw new Error(`${name}: ${response.error.message}`);
+    return response.result.structuredContent;
+  };
+
+  const first = make();
+  await invoke(first, "chart_patch", {
+    baseRev: 0,
+    fields: {
+      stack: "SwiftUI",
+      platforms: ["iOS"],
+      tasks: ["Check today's orders"],
+      brand: { color: "#1F4E3D", type: "SF", keep: ["green mark"] },
+      accepted: ["ui.status-dot: cash marker with a text label"],
+      offLimits: ["checkout"],
+    },
+    idem: "rt-chart",
+  });
+  await invoke(first, "finding_upsert", {
+    rule: "ui.nested-cards",
+    file: "./src/Home.swift",
+    line: 42,
+    snippet: "Card { Card {",
+    severity: "noticeable",
+    message: "A card inside a card.",
+    fix: "Keep one container level.",
+    idem: "rt-finding",
+  });
+  await invoke(first, "visit_record", {
+    scope: "home",
+    command: "review",
+    total: 14,
+    scores: { taskPath: 3, truth: 3, nativeFit: 2, states: 2, access: 2, specificity: 2 },
+    band: "sloppy",
+    reportMd: "# Home\n\nA report.",
+    idem: "rt-visit",
+  });
+  await invoke(first, "waiver_add", {
+    rule: "ui.status-dot",
+    scope: "project",
+    reason: "cash marker paired with a text label",
+    idem: "rt-waiver",
+  });
+
+  const exported = await invoke(first, "export_text");
+  assert.ok(exported.written.some((path) => path.endsWith("visits.jsonl")));
+  assert.ok(exported.written.some((path) => path.includes("visits") && path.endsWith(".md")));
+  first.db.close();
+
+  for (const suffix of ["project.db", "project.db-wal", "project.db-shm"]) {
+    rmSync(join(root, ".slopdrop", suffix), { force: true });
+  }
+
+  const second = make();
+  const imported = await invoke(second, "import_text");
+  assert.equal(imported.chart, true);
+  assert.equal(imported.findings, 1);
+  assert.equal(imported.waivers, 1);
+  assert.equal(imported.visits, 1);
+
+  const chart = await invoke(second, "chart_read");
+  assert.equal(chart.data.stack, "SwiftUI");
+  assert.deepEqual(chart.data.tasks, ["Check today's orders"]);
+  assert.deepEqual(chart.data.brand.keep, ["green mark"]);
+
+  const findings = await invoke(second, "finding_list", {});
+  assert.equal(findings.findings.length, 1);
+  assert.equal(findings.findings[0].file, "src/Home.swift");
+
+  const visits = await invoke(second, "visit_list", { scope: "home" });
+  assert.equal(visits.visits.length, 1);
+  assert.equal(visits.visits[0].total, 14);
+
+  const again = await invoke(second, "import_text");
+  assert.deepEqual(again, { chart: false, findings: 0, waivers: 0, visits: 0 });
+
+  second.db.close();
+  rmSync(root, { recursive: true, force: true });
 });

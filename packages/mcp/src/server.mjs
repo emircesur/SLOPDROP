@@ -140,7 +140,12 @@ const TOOL_DEFS = [
   },
   {
     name: "export_text",
-    description: "Write chart.md, findings.jsonl, and waivers.json back to the project's .slopdrop directory.",
+    description: "Write chart.md, findings.jsonl, waivers.json, and visits.jsonl back to the project's .slopdrop directory, plus one markdown file per visit.",
+    inputSchema: { type: "object", properties: { dir: { type: "string" } } },
+  },
+  {
+    name: "import_text",
+    description: "Rebuild the database from the committed text artifacts. Idempotent: unchanged files produce no events.",
     inputSchema: { type: "object", properties: { dir: { type: "string" } } },
   },
   {

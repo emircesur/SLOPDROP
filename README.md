@@ -54,7 +54,8 @@ npx slopdrop install --dir path/to/skills
 ```bash
 npx slopdrop mcp install     # detects Claude Desktop, Antigravity, Codex and writes their MCP config
 npx slopdrop sync status     # who wrote what, what changed since your last read
-npx slopdrop sync export     # writes chart.md / findings.jsonl / visits/ back to text for git
+npx slopdrop sync export     # writes chart.md, findings.jsonl, waivers.json, visits/ for git
+npx slopdrop sync import     # rebuilds the database from those files
 ```
 
 One SQLite file per project lives at `.slopdrop/project.db`. Every agent connects over MCP; every write is an event with an actor, a base revision, and an idempotency key. Conflicts are recorded, never silently overwritten. Your project stays readable as text: the database is the index and the bus, the committed markdown is the truth.

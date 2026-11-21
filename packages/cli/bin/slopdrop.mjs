@@ -21,7 +21,8 @@ const USAGE = `Usage: slopdrop <command> [options]
   mcp install                            register the MCP server with installed clients
   mcp serve [--project <dir>] [--human]  run the server (stdio)
   sync status                            project revision, open findings, last visit
-  sync export                            write chart.md, findings.jsonl, waivers.json
+  sync export                            write chart.md, findings.jsonl, waivers.json, visits
+  sync import                            rebuild the database from those files
 
 Agents: claude, codex, antigravity, cursor, opencode, gemini, copilot`;
 
@@ -251,18 +252,25 @@ async function cmdSync(action, _positional, flags) {
       return 0;
     }
 
-    if (action === "export") {
+    if (action === "export" || action === "import") {
       const response = await handler.handle({
         jsonrpc: "2.0",
         id: 1,
         method: "tools/call",
-        params: { name: "export_text", arguments: {} },
+        params: { name: `${action}_text`, arguments: {} },
       });
       if (response.error) {
         console.error(response.error.message);
         return 1;
       }
-      console.log(`Exported: ${response.result.structuredContent.written.join(", ")}`);
+      const payload = response.result.structuredContent;
+      if (action === "export") {
+        console.log(`Exported: ${payload.written.join(", ")}`);
+      } else {
+        console.log(
+          `Imported: chart ${payload.chart ? "updated" : "unchanged"}, ${payload.findings} findings, ${payload.waivers} waivers, ${payload.visits} visits`,
+        );
+      }
       return 0;
     }
 
