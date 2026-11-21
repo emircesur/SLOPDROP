@@ -1,0 +1,55 @@
+{
+  "family": "a11y",
+  "title": "Accessibility",
+  "rules": [
+    {
+      "id": "a11y.fixed-text-size",
+      "severity": "noticeable",
+      "platforms": ["mobile", "web", "universal", "unknown"],
+      "stacks": ["swift", "js", "dart", "xml", "kotlin"],
+      "message": "Text that ignores the user's text size setting.",
+      "fix": "Use platform text styles (.body, MaterialTheme.typography, textTheme) or scale custom sizes (relativeTo:, UIFontMetrics, sp). Check at the largest size.",
+      "patterns": [
+        "\\.system\\(\\s*size:\\s*\\d",
+        "\\.custom\\([^)]*size:\\s*\\d",
+        "allowFontScaling\\s*[=:]\\s*\\{?\\s*false",
+        "maxFontSizeMultiplier\\s*[=:]\\s*\\{?\\s*1(?:\\.0+)?\\b",
+        "TextScaler\\.noScaling",
+        "android:textSize=\"\\d+(?:\\.\\d+)?(?:dp|px)\""
+      ]
+    },
+    {
+      "id": "a11y.focus-removed",
+      "severity": "noticeable",
+      "platforms": ["web", "universal", "unknown"],
+      "stacks": ["js", "web", "css"],
+      "message": "Focus outline removed with nothing in its place.",
+      "fix": "Keep a visible :focus-visible style in the palette: a 2px outline or ring with an offset.",
+      "fileExcludes": ["focus-visible", "focus:ring", "focus-ring"],
+      "patterns": ["(?:focus:)?outline-none", "outline:\\s*(?:none|0)\\b"]
+    },
+    {
+      "id": "a11y.img-no-alt",
+      "severity": "noticeable",
+      "platforms": ["web", "universal", "unknown"],
+      "stacks": ["js", "web"],
+      "message": "Image without alt text.",
+      "fix": "Describe what the image shows, or use alt=\"\" for pure decoration.",
+      "patterns": ["<img(?![^>]*\\balt=)[^>]*>"]
+    },
+    {
+      "id": "a11y.zoom-disabled",
+      "severity": "noticeable",
+      "platforms": ["web", "universal", "unknown"],
+      "stacks": ["js", "web"],
+      "message": "Pinch zoom disabled in the viewport settings.",
+      "fix": "Remove maximum-scale and user-scalable. If inputs zoom on focus in iOS, give them a 16px font size instead.",
+      "patterns": [
+        "user-scalable\\s*=\\s*(?:no|0)",
+        "maximum-scale\\s*=\\s*1(?:\\.0+)?(?!\\d)",
+        "userScalable:\\s*false",
+        "maximumScale:\\s*1(?:\\.0+)?(?!\\d)"
+      ]
+    }
+  ]
+}

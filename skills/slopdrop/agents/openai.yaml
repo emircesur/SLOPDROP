@@ -1,0 +1,4 @@
+interface:
+  display_name: "/slopdrop"
+  short_description: "Find and fix AI slop in UI, UX, and interface copy."
+  default_prompt: "Use $slopdrop to review this project for AI slop and tell me what to fix first."

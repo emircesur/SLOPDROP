@@ -1,0 +1,542 @@
+{
+  "family": "copy",
+  "title": "Copy",
+  "rules": [
+    {
+      "id": "copy.oops-error",
+      "severity": "noticeable",
+      "platforms": [
+        "mobile",
+        "web",
+        "spatial",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart",
+        "xml"
+      ],
+      "message": "\"Oops\" or \"Something went wrong\": no cause, no next step.",
+      "fix": "Say what failed in the product's words and what the user can do: retry, check the connection, contact support.",
+      "patterns": [
+        "\\boops\\b",
+        "something went wrong"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "copy.buzzword",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "spatial",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart",
+        "xml"
+      ],
+      "message": "Marketing filler in the interface.",
+      "fix": "Say what the screen does in plain words, or delete the line.",
+      "patterns": [
+        "unlock (?:your|the) (?:full )?potential",
+        "\\bseamless(?:ly)?\\b",
+        "\\beffortless(?:ly)?\\b",
+        "\\bsupercharg\\w*",
+        "all in one place",
+        "\\belevate your\\b",
+        "game[- ]?changer",
+        "revolutioni[sz]\\w*",
+        "\\bunleash\\b",
+        "\\bempower(?:s|ing)? you"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "copy.welcome-back",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart",
+        "xml"
+      ],
+      "message": "\"Welcome back!\" spending prime screen space on a greeting.",
+      "fix": "Use that space for what a returning user came to do.",
+      "patterns": [
+        "welcome back[^'<\\n]{0,40}!"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "copy.vague-button",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart",
+        "xml"
+      ],
+      "message": "Button label that does not say what happens.",
+      "fix": "Use a verb and an object: \"Save address\", \"Send invoice\", \"Book table\".",
+      "patterns": [
+        "(?:title|label|text)\\s*[=:]\\s*\\{?\\s*['\"](?:Submit|Click here|Tap here)['\"]",
+        ">\\s*(?:Submit|Click here|Tap here)\\s*<"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "copy.binary-contrast",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Binary contrast: \"It's not X. It's Y.\"",
+      "fix": "State Y directly. \"The eval matters more than the model.\"",
+      "patterns": [
+        "\\bit'?s not [^.!?\\n]{1,60}\\. it'?s ",
+        "\\bnot just [^,.]{1,40}, but "
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "copy.faux-insight",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Faux-insight setup: \"What nobody tells you\", \"The part everyone misses\".",
+      "fix": "Cut the setup and let the claim stand on its own.",
+      "patterns": [
+        "what (?:nobody|no one|most people) (?:tells? you|gets? wrong|misses?)",
+        "the part (?:everyone|most people) (?:misses?|skips?)",
+        "here'?s what nobody"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "copy.colon-reveal",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Colon reveal: a noun phrase, a colon, a lowercase dramatic payoff.",
+      "fix": "Write a plain sentence. Use colons for lists, labels, and quotes, not fake drama.",
+      "patterns": [
+        "\\bthe (?:best|worst|real|key) part:\\s*[a-z]"
+      ]
+    },
+    {
+      "id": "copy.importance-puffery",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Importance puffery: \"stands as a testament\", \"marks a pivotal moment\".",
+      "fix": "State the fact and let the reader decide whether it matters.",
+      "patterns": [
+        "stands? as a testament",
+        "marks? a pivotal moment",
+        "plays? a (?:vital|crucial|key) role",
+        "solidifies? (?:its|their) position",
+        "underscores? (?:its|their) significance"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "copy.weasel-attribution",
+      "severity": "noticeable",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Weasel attribution: \"experts agree\", \"studies show\".",
+      "fix": "Name the source or cut the claim. If there is no source, do not invent one.",
+      "patterns": [
+        "experts agree",
+        "studies show",
+        "industry reports suggest",
+        "many argue",
+        "widely regarded as"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "copy.fake-profound",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Fake-profound kicker: the final line that turns the point into a mic drop.",
+      "fix": "Delete it. End on the clearest concrete sentence already in the copy.",
+      "patterns": [
+        "the future (?:isn'?t|is not) coming",
+        "it'?s already here",
+        "that'?s it\\. that'?s the whole thing"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "copy.summary-recap",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Summary-recap ending.",
+      "fix": "End on the last concrete point, takeaway, or next action.",
+      "patterns": [
+        "\\bin conclusion\\b",
+        "\\bultimately,",
+        "\\boverall,"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "detect": false,
+      "id": "copy.negative-listing",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Negative listing: \"Not a X. Not a Y. A Z.\"",
+      "fix": "Say Z. The reader does not need the runway.",
+      "patterns": [
+        "\\bnot a [^.!?\\n]{1,40}\\. not a ",
+        "\\bno [^.!?\\n]{1,30}\\. no [^.!?\\n]{1,30}\\. "
+      ]
+    },
+    {
+      "detect": false,
+      "id": "copy.throat-clearing",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Throat-clearing opener: \"Here's the thing\", \"Let me be clear\".",
+      "fix": "Cut the opener and state the point.",
+      "patterns": [
+        "here'?s the thing",
+        "let me be clear",
+        "i'?ll be honest",
+        "the uncomfortable truth is"
+      ]
+    },
+    {
+      "detect": false,
+      "id": "copy.dramatic-fragment",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Dramatic fragment used as emphasis.",
+      "fix": "Use a complete sentence.",
+      "patterns": [
+        "\\bthat'?s it\\. that'?s the whole thing"
+      ]
+    },
+    {
+      "detect": false,
+      "id": "copy.robotic-rhythm",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Repeated sentence shape or identical paragraph structure.",
+      "fix": "Vary the shape only where it helps the point. One rhythm for a whole page reads generated."
+    },
+    {
+      "detect": false,
+      "id": "copy.rhetorical-setup",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Rhetorical setup with a self-answered question.",
+      "fix": "Drop the question and make the point.",
+      "patterns": [
+        "what if i told you",
+        "think about it:",
+        "plot twist:"
+      ]
+    },
+    {
+      "detect": false,
+      "id": "copy.superficial-analysis",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Trailing -ing clause that pretends to explain meaning.",
+      "fix": "Say the consequence instead: \"so users can find old drafts without leaving the editor\".",
+      "patterns": [
+        ",\\s+(?:highlighting|underscoring|reflecting|showcasing|demonstrating) "
+      ]
+    },
+    {
+      "detect": false,
+      "id": "copy.metadiscourse",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Interpretive metadiscourse: the text tells the reader what to notice.",
+      "fix": "Delete the aside. If the point is not clear, add support instead.",
+      "patterns": [
+        "that last part matters",
+        "\\bthe key point is\\b",
+        "\\bas you can see\\b",
+        "this distinction matters"
+      ]
+    },
+    {
+      "detect": false,
+      "id": "copy.fake-strong-verb",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Fake-strong verb phrase where \"is\" or a direct verb is clearer.",
+      "fix": "\"Serves as a hub\" becomes \"tracks sponsors, drafts, and approvals in one place\".",
+      "patterns": [
+        "serves? as a",
+        "acts? as a",
+        "functions? as a"
+      ]
+    },
+    {
+      "detect": false,
+      "id": "copy.synonym-cycling",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "The same thing called by three different names.",
+      "fix": "Repeat the clear word. Rotation reads as padding."
+    },
+    {
+      "detect": false,
+      "id": "copy.formatting-slop",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Formatting that decorates instead of structuring: emoji headings, decorative bold, bullets for two sentences.",
+      "fix": "Let the content choose the format. No emoji in headings, no headers over two-line sections."
+    },
+    {
+      "detect": false,
+      "id": "copy.em-dash",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Em dash used as the default rhythm.",
+      "fix": "None in short copy; one or two in longer copy only when they clearly beat commas, periods, or parentheses."
+    }
+  ]
+}

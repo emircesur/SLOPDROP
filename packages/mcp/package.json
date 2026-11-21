@@ -1,0 +1,14 @@
+{
+  "name": "@slopdrop/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first SQLite brain for SLOPDROP, exposed over MCP.",
+  "bin": {
+    "slopdrop-mcp": "src/server.mjs"
+  },
+  "main": "src/server.mjs",
+  "exports": {
+    ".": "./src/server.mjs"
+  }
+}

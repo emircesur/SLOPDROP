@@ -1,0 +1,36 @@
+{
+  "name": "slopdrop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Stop AI slop in your UI/UX. Deterministic review, treatment, and a local-first project brain for every coding agent you use.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "packageManager": "pnpm@10.29.3",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "scan": "node packages/detect/bin/slopdrop-detect.mjs",
+    "test": "node packages/rules/validate.mjs && node packages/core/test/scoring.test.mjs && node packages/detect/test/detect.test.mjs && node packages/mcp/test/server.test.mjs",
+    "rules:validate": "node packages/rules/validate.mjs",
+    "plugins:build": "node scripts/build-plugins.mjs",
+    "mcp": "node packages/mcp/src/server.mjs",
+    "mcp:setup": "node packages/cli/bin/slopdrop.mjs mcp install",
+    "sync:status": "node packages/cli/bin/slopdrop.mjs sync status"
+  },
+  "keywords": [
+    "ai-slop",
+    "design-review",
+    "ui",
+    "ux",
+    "accessibility",
+    "mcp",
+    "agents",
+    "local-first",
+    "sqlite"
+  ]
+}

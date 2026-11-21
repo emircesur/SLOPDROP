@@ -1,0 +1,155 @@
+{
+  "family": "ui",
+  "title": "Look",
+  "rules": [
+    {
+      "id": "ui.slop-gradient",
+      "severity": "noticeable",
+      "platforms": ["mobile", "web", "spatial", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart", "xml"],
+      "message": "Purple, indigo, or pink gradient: the default AI palette.",
+      "fix": "Use a flat surface from the theme. Keep a gradient only if the brand owns it, and record that in the chart.",
+      "patterns": [
+        "(?:LinearGradient|linear-gradient|RadialGradient|Brush\\.(?:linear|radial|sweep|horizontal|vertical)Gradient)[^\\n]{0,240}(?:#(?:[6-9a-f][0-9a-f])[0-9a-f]{4}|purple|violet|indigo|fuchsia|deepPurple)",
+        "bg-gradient-to-[a-z]+[^\"'`\\n]*(?:from|via|to)-(?:purple|violet|indigo|fuchsia|pink)-\\d{2,3}"
+      ]
+    },
+    {
+      "id": "ui.gradient-text",
+      "severity": "noticeable",
+      "platforms": ["mobile", "web", "spatial", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart"],
+      "message": "Gradient-filled text.",
+      "fix": "Emphasize with weight or size from the type scale, in a solid theme color.",
+      "patterns": [
+        "<MaskedView",
+        "ShaderMask\\s*\\(",
+        "background-clip:\\s*text",
+        "bg-clip-text",
+        "\\.foregroundStyle\\(\\s*(?:LinearGradient|\\.linearGradient)"
+      ]
+    },
+    {
+      "id": "ui.template-theme",
+      "severity": "noticeable",
+      "platforms": ["mobile", "universal", "unknown"],
+      "stacks": ["swift", "kotlin", "dart", "js"],
+      "message": "The project template's default color is still the theme.",
+      "fix": "Pick the brand's own accent and define semantic roles. Ask first if that purple has become the brand.",
+      "patterns": [
+        "seedColor:\\s*Colors\\.deepPurple",
+        "0x[fF]{2}(?:6650[aA]4|[dD]0[bB][cC][fF][fF]|6200[eE][eE]|3700[bB]3)",
+        "#(?:6650[aA]4|6200[eE][eE]|3700[bB]3|[bB][bB]86[fF][cC])"
+      ]
+    },
+    {
+      "id": "ui.glow-shadow",
+      "severity": "minor",
+      "platforms": ["mobile", "web", "spatial", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart"],
+      "message": "Colored glow shadow.",
+      "fix": "Shadows carry depth, not color: use platform elevation or a soft neutral shadow, or remove it.",
+      "patterns": [
+        "shadowColor\\s*[:=]\\s*[\"']?(?:purple|violet|indigo|blue|pink|cyan|mint|teal|accent)",
+        "\\.shadow\\(\\s*color:\\s*(?:Color\\.)?(?:purple|violet|indigo|blue|pink|cyan|mint|teal|accent)",
+        "box-shadow:[^;\\n]*(?:purple|violet|indigo|blue|pink|cyan|mint|teal|glow)"
+      ]
+    },
+    {
+      "id": "ui.status-dot",
+      "severity": "minor",
+      "platforms": ["mobile", "web", "spatial", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart"],
+      "message": "Small colored dot beside a label.",
+      "fix": "Keep it only if it shows a status the user acts on, with a text label or shape, never color alone. Otherwise delete it.",
+      "patterns": [
+        "[\"'][^\"'`\\n]*(?=[^\"'`\\n]*\\brounded-full\\b)(?=[^\"'`\\n]*(?:[wh]-(?:0\\.5|1|1\\.5|2|2\\.5|3)|size-(?:0\\.5|1|1\\.5|2|2\\.5|3))\\b)[^\"'`\\n]*[\"']",
+        "\\.frame\\(\\s*width:\\s*[3-9](?:\\.\\d+)?\\s*,\\s*height:\\s*[3-9]"
+      ]
+    },
+    {
+      "id": "ui.nested-cards",
+      "severity": "noticeable",
+      "platforms": ["mobile", "web", "universal", "unknown"],
+      "stacks": ["js", "web", "kotlin", "dart"],
+      "message": "A card inside a card.",
+      "fix": "Keep one container level. Group inner content with spacing, a divider, or a list section.",
+      "heuristic": true,
+      "patterns": [
+        "<Card\\b[^>]*>(?:(?!</Card>)[\\s\\S]){0,800}<Card\\b",
+        "<ion-card\\b[^>]*>(?:(?!</ion-card>)[\\s\\S]){0,800}<ion-card\\b",
+        "\\bCard\\s*\\((?:(?!\\bCard\\s*\\()[\\s\\S]){0,600}\\bCard\\s*\\("
+      ]
+    },
+    {
+      "id": "ui.glass-everywhere",
+      "severity": "minor",
+      "platforms": ["mobile", "web", "spatial", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart"],
+      "message": "Blur and glass used on several surfaces in one file.",
+      "fix": "Keep system materials behind bars and sheets. Make content surfaces opaque.",
+      "perFile": true,
+      "minMatches": 3,
+      "patterns": [
+        "\\.(?:ultraThin|thin|regular|thick|ultraThick)Material\\b",
+        "<BlurView\\b",
+        "backdrop-filter",
+        "BackdropFilter\\(",
+        "ImageFilter\\.blur",
+        "\\.glassEffect\\(",
+        "\\.glassBackgroundEffect\\("
+      ]
+    },
+    {
+      "id": "ui.sparkle-icon",
+      "severity": "minor",
+      "platforms": ["mobile", "web", "spatial", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart", "xml"],
+      "message": "Sparkle icon, usually marking an AI feature or standing in for meaning.",
+      "fix": "Use an icon that names the action, or a text label. If it marks AI, keep that feature out of the core task's way.",
+      "patterns": [
+        "[\"']sparkles?[\"']",
+        "wand\\.and\\.stars",
+        "\\bauto_awesome\\b",
+        "\\bSparkles?\\b",
+        "✨"
+      ]
+    },
+    {
+      "id": "ui.emoji-icon",
+      "severity": "minor",
+      "platforms": ["mobile", "web", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart", "xml"],
+      "message": "Emoji in interface text, often standing in for an icon.",
+      "fix": "Use the platform icon set with an accessibility label, or drop it.",
+      "patterns": [
+        { "re": "(?<!\\p{L})\\p{Emoji_Presentation}[ \\u00a0]?\\p{L}{2,}", "flags": "u" },
+        { "re": "\\p{L}{2,}[ \\u00a0]?\\p{Emoji_Presentation}", "flags": "u" }
+      ]
+    },
+    {
+      "id": "ui.icon-tile",
+      "severity": "minor",
+      "platforms": ["web", "universal", "unknown"],
+      "stacks": ["js", "web"],
+      "message": "Icon in a tinted rounded square, the generated default for every row and feature card.",
+      "fix": "Put the icon inline in the text color, or drop it. Keep a tile only where the shape carries meaning, like an app icon.",
+      "patterns": [
+        "[\"'][^\"'`\\n]*(?=[^\"'`\\n]*\\brounded-(?:md|lg|xl|2xl)\\b)(?=[^\"'`\\n]*\\bbg-(?:[a-z]+-(?:50|100)|[a-z]+-\\d{3}/\\d+|primary/\\d+|accent)\\b)(?=[^\"'`\\n]*(?:size|w|h)-(?:8|9|10|11|12)\\b)[^\"'`\\n]*[\"']"
+      ]
+    },
+    {
+      "id": "ui.tracked-caps-label",
+      "severity": "minor",
+      "platforms": ["mobile", "web", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin"],
+      "message": "Small label in tracked capitals, the eyebrow above every section.",
+      "fix": "Use sentence case in the body face, one step smaller, without letter spacing. Or delete the label and let the heading carry the section.",
+      "patterns": [
+        "uppercase[^\"'`\\n]*tracking-(?:wide|wider|widest)",
+        "text-transform:\\s*uppercase[^}]{0,120}letter-spacing",
+        "\\.textCase\\(\\s*\\.uppercase\\s*\\)"
+      ]
+    }
+  ]
+}

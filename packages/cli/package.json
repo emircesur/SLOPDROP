@@ -1,0 +1,11 @@
+{
+  "name": "slopdrop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Stop AI slop in your UI/UX: install the skill, scan the code, share the project brain.",
+  "bin": {
+    "slopdrop": "bin/slopdrop.mjs"
+  },
+  "main": "bin/slopdrop.mjs"
+}

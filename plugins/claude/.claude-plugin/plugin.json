@@ -1,0 +1,40 @@
+{
+  "name": "slopdrop",
+  "description": "Find and fix AI slop in UI, UX, and interface copy across mobile, web, and spatial apps. Reviews what users actually complain about first, scores the screen out of 24, and treats the source instead of repainting it.",
+  "version": "0.1.0",
+  "author": {
+    "name": "SLOPDROP contributors"
+  },
+  "homepage": "https://github.com/slopdrop/slopdrop",
+  "license": "MIT",
+  "keywords": [
+    "design",
+    "ui",
+    "ux",
+    "ai-slop",
+    "accessibility",
+    "mcp",
+    "mobile",
+    "web",
+    "spatial"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "SLOPDROP",
+    "shortDescription": "Stop AI slop in your UI/UX",
+    "longDescription": "SLOPDROP reviews mobile, web, and spatial interfaces for the things users actually complain about: a button that moved, a list that stutters, a popup mid-task, a screen that says Oops. Then it checks whether the product looks like itself or like every other generated app, scores it out of 24 across six dimensions, and treats the source at the token and component level. It also reviews interface copy for model tells. A deterministic detector covers 48 patterns across SwiftUI, Compose, React Native, Flutter, React, Vue, Svelte, Tailwind, and spatial stacks. Reports say what was not checked, including performance.",
+    "developerName": "SLOPDROP contributors",
+    "category": "Coding",
+    "capabilities": [
+      "Review",
+      "Treat",
+      "Scan",
+      "Copy audit",
+      "Spatial review"
+    ],
+    "defaultPrompt": [
+      "Review this screen for AI slop",
+      "Treat the checkout screen"
+    ]
+  }
+}

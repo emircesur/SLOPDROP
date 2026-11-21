@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Validate the rule catalog
+        run: node packages/rules/validate.mjs
+      - name: Core scoring
+        run: node packages/core/test/scoring.test.mjs
+      - name: Detector
+        run: node packages/detect/test/detect.test.mjs
+      - name: MCP server
+        run: node packages/mcp/test/server.test.mjs
+      - name: Plugin packages
+        run: node scripts/build-plugins.mjs
+      - name: Detector is clean on the clean fixture
+        run: node packages/detect/bin/slopdrop-detect.mjs packages/detect/test/fixtures/clean
+      - name: Detector exits 2 on the slop fixture
+        run: |
+          set +e
+          node packages/detect/bin/slopdrop-detect.mjs packages/detect/test/fixtures/slop --platform web > /dev/null
+          code=$?
+          test "$code" -eq 2

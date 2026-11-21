@@ -1,0 +1,40 @@
+{
+  "family": "motion",
+  "title": "Motion",
+  "rules": [
+    {
+      "id": "motion.transition-all",
+      "severity": "minor",
+      "platforms": ["web", "universal", "unknown"],
+      "stacks": ["js", "web", "css"],
+      "message": "Transition on every property.",
+      "fix": "Name the properties: transition-colors, or transition-[transform,opacity]. Never animate width, height, top, or left.",
+      "perFile": true,
+      "minMatches": 1,
+      "patterns": ["\\btransition-all\\b", "transition(?:-property)?:\\s*all\\b"]
+    },
+    {
+      "id": "motion.hover-scale",
+      "severity": "minor",
+      "platforms": ["web", "universal", "unknown"],
+      "stacks": ["js", "web", "css"],
+      "message": "Cards that grow on hover.",
+      "fix": "Show hover with a quick color or surface change. Keep scale for a small press-down on buttons.",
+      "patterns": [
+        "hover:scale-1(?:0[2-9]|[1-9]\\d)",
+        "hover:-translate-y-\\d",
+        ":hover[^{]*\\{[^}]*transform:\\s*scale\\(1\\.0[2-9]"
+      ]
+    },
+    {
+      "id": "motion.decorative-pulse",
+      "severity": "minor",
+      "platforms": ["web", "universal", "unknown"],
+      "stacks": ["js", "web", "css"],
+      "message": "Pulsing or pinging element that is not a loading skeleton.",
+      "fix": "Animate only what is live or loading. Remove looping motion from badges, dots, and buttons.",
+      "patterns": ["animate-(?:pulse|ping)", "\\.repeatForever\\("],
+      "excludePatterns": ["skeleton", "bg-(?:gray|slate|zinc|neutral|stone|muted)"]
+    }
+  ]
+}

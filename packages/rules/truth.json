@@ -1,0 +1,54 @@
+{
+  "family": "truth",
+  "title": "Truthfulness",
+  "rules": [
+    {
+      "id": "truth.unverified-claim",
+      "severity": "noticeable",
+      "platforms": [
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart",
+        "xml"
+      ],
+      "message": "Social proof or speed claim that the product does not back up.",
+      "fix": "Use a real, sourced number with what it compares to, or remove it. Never ship invented customer counts, logo walls, or testimonials.",
+      "patterns": [
+        "(?:trusted|loved|used) by (?:over |more than )?[\\d,.]+\\s*[kKM]?\\+?\\s*(?:teams|companies|developers|users|customers|people|businesses)",
+        "join (?:over |more than )?[\\d,.]+\\s*[kKM]?\\+?\\s+(?:teams|users|developers|customers|people|creators)",
+        "\\b\\d+x (?:faster|better|more productive|cheaper)\\b"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "truth.invented-stat",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Hard-coded statistic in the interface.",
+      "fix": "Compute it from real data, or mark it as placeholder content. Stat tiles with invented numbers mislead users.",
+      "patterns": [
+        ">\\s*[+↑↓]?\\d{1,3}(?:[.,]\\d{1,3})*\\s*(?:%|[kKM]\\+?|\\+)\\s*<",
+        "(?:value|stat|metric|count|total|number)\\s*:\\s*[\"'][+↑↓]?\\d{1,3}(?:[.,]\\d{1,3})*\\s*(?:%|[kKM]\\+?|\\+)[\"']"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@slopdrop/detect",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The SLOPDROP deterministic detector.",
+  "bin": {
+    "slopdrop-detect": "bin/slopdrop-detect.mjs"
+  },
+  "main": "src/engine.mjs",
+  "exports": {
+    ".": "./src/engine.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

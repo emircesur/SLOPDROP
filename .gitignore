@@ -1,0 +1,33 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# local state (never commit a database)
+.slopdrop/
+*.db
+*.db-wal
+*.db-shm
+
+# env
+.env
+.env.*
+!.env.example
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# reference material kept out of the product repo
+.research/
+
+# local scratch
+.tmp-*/

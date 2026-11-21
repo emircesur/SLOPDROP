@@ -1,0 +1,78 @@
+{
+  "family": "ux",
+  "title": "Interaction and platform fit",
+  "rules": [
+    {
+      "id": "ux.back-gesture",
+      "severity": "noticeable",
+      "platforms": ["mobile", "universal", "unknown"],
+      "stacks": ["swift", "js", "kotlin", "dart", "xml"],
+      "message": "System back gesture disabled, hidden, or handled the deprecated way.",
+      "fix": "Keep edge-swipe back on iOS and predictive back on Android. Guard only real data loss (PopScope, OnBackPressedCallback, usePreventRemove) and say why.",
+      "patterns": [
+        "interactivePopGestureRecognizer\\??\\.isEnabled\\s*=\\s*false",
+        "navigationBarBackButtonHidden\\(\\s*true",
+        "gestureEnabled\\s*[:=]\\s*\\{?\\s*false",
+        "override\\s+fun\\s+onBackPressed\\s*\\(",
+        "\\bWillPopScope\\s*\\(",
+        "android:enableOnBackInvokedCallback=\"false\""
+      ]
+    },
+    {
+      "id": "ux.drawer-nav",
+      "severity": "noticeable",
+      "platforms": ["mobile", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart", "xml"],
+      "message": "Hamburger menu or navigation drawer. It hides the top destinations behind a tap.",
+      "fix": "Ask first. Use tabs for three to five peer destinations; keep a drawer only for many destinations or a large-screen rail.",
+      "patterns": [
+        "\"line\\.3\\.horizontal\"",
+        "Icons\\.(?:Default\\.|Filled\\.|Outlined\\.)?Menu\\b",
+        "name=\"menu(?:-outline)?\"",
+        "createDrawerNavigator",
+        "ModalNavigationDrawer",
+        "<ion-menu"
+      ]
+    },
+    {
+      "id": "ux.hover-only",
+      "severity": "minor",
+      "platforms": ["mobile"],
+      "stacks": ["js", "web", "css"],
+      "message": "Hover behavior in a touch app. Nobody hovers on a phone.",
+      "fix": "Make the information or control visible without hover, or guard it with @media (hover: hover) for pointer devices only.",
+      "fileExcludes": ["hover:\\s*hover"],
+      "patterns": ["onMouseEnter", "onHoverIn", "onMouseOver", ":hover\\b", "\\bhover:[a-z-]"]
+    },
+    {
+      "id": "ux.keyboard-cover",
+      "severity": "minor",
+      "platforms": ["mobile", "universal", "unknown"],
+      "stacks": ["js"],
+      "message": "Screen with a text input and no keyboard handling. The keyboard may cover the field.",
+      "fix": "Use KeyboardAvoidingView, automaticallyAdjustKeyboardInsets, or imePadding, and set keyboardShouldPersistTaps. Check it on a small phone.",
+      "fileRequires": ["<TextInput\\b"],
+      "fileExcludes": [
+        "KeyboardAvoidingView",
+        "KeyboardAware",
+        "automaticallyAdjustKeyboardInsets",
+        "keyboardShouldPersistTaps",
+        "imePadding"
+      ],
+      "patterns": ["<TextInput\\b"]
+    },
+    {
+      "id": "ux.safe-area-off",
+      "severity": "minor",
+      "platforms": ["mobile", "universal", "unknown"],
+      "stacks": ["swift", "kotlin", "dart", "js", "xml"],
+      "message": "Safe area ignored. Content may sit under the notch or home indicator.",
+      "fix": "Ignore the safe area for backgrounds only, e.g. .background(Color.surface.ignoresSafeArea()).",
+      "patterns": [
+        "\\.ignoresSafeArea\\(\\s*\\)",
+        "\\.edgesIgnoringSafeArea\\(\\s*\\.all\\s*\\)",
+        "android:fitsSystemWindows=\"false\""
+      ]
+    }
+  ]
+}

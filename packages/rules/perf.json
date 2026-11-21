@@ -1,0 +1,36 @@
+{
+  "family": "perf",
+  "title": "Performance",
+  "rules": [
+    {
+      "id": "perf.unvirtualized-list",
+      "severity": "noticeable",
+      "platforms": ["mobile", "web", "spatial", "universal", "unknown"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart"],
+      "message": "A list built by mapping items inside a plain scroll container. Every row renders up front.",
+      "fix": "Use the virtualized list: FlatList or FlashList, List or LazyVStack, LazyColumn, ListView.builder. Then profile scrolling on a real device.",
+      "heuristic": true,
+      "patterns": [
+        "<ScrollView[^>]*>(?:(?!</ScrollView>)[\\s\\S]){0,2000}\\.map\\(",
+        "ScrollView\\s*\\{(?:(?!\\n\\s*\\})[\\s\\S]){0,400}VStack(?:(?!\\n\\s*\\})[\\s\\S]){0,600}ForEach",
+        "Column\\([^)]*verticalScroll(?:(?!\\n\\s*\\})[\\s\\S]){0,600}(?:\\.forEach|for\\s*\\()",
+        "SingleChildScrollView(?:(?!\\);)[\\s\\S]){0,600}(?:children:|for\\s*\\()",
+        "ListView\\(\\s*children:"
+      ]
+    },
+    {
+      "id": "perf.frame-budget",
+      "severity": "critical",
+      "platforms": ["spatial"],
+      "stacks": ["js", "web", "swift", "kotlin", "dart"],
+      "message": "Frame rate capped or vertical sync disabled in a spatial build.",
+      "fix": "Target 72, 90, or 120 Hz and measure frame time on the device: 13.9, 11.1, or 8.3 ms.",
+      "heuristic": true,
+      "patterns": [
+        "targetFrameRate\\s*=\\s*30",
+        "vSyncCount\\s*=\\s*0",
+        "QualitySettings\\.vSyncCount"
+      ]
+    }
+  ]
+}

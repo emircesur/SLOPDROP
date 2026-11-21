@@ -1,0 +1,101 @@
+{
+  "family": "web",
+  "title": "Web",
+  "rules": [
+    {
+      "id": "web.clickable-div",
+      "severity": "noticeable",
+      "platforms": [
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web"
+      ],
+      "message": "Click handler on a div or span. Keyboard and screen reader users cannot reach it.",
+      "fix": "Use a <button> for actions and an <a href> for navigation. They come with focus, Enter and Space, and the right role.",
+      "patterns": [
+        "<(?:div|span|li|td)[^>]*\\s(?:onClick|@click|v-on:click)\\s*="
+      ]
+    },
+    {
+      "id": "web.scroll-jack",
+      "severity": "noticeable",
+      "platforms": [
+        "web"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "css"
+      ],
+      "message": "Scroll-linked animation or parallax. Confirm whether it hijacks the scroll.",
+      "fix": "Use natural scrolling. If an effect needs scroll position, keep the page scrolling at the user's speed and never trap the wheel.",
+      "heuristic": true,
+      "patterns": [
+        "ScrollTrigger",
+        "data-scroll",
+        "\\bparallax\\b",
+        "scrollYProgress"
+      ]
+    },
+    {
+      "id": "web.chatbot-bubble",
+      "severity": "noticeable",
+      "platforms": [
+        "web"
+      ],
+      "stacks": [
+        "js",
+        "web"
+      ],
+      "message": "AI assistant bubble, banner, or badge competing with the task.",
+      "fix": "Make it dismissible and keep it out of the core task's path. Do not replace search or navigation with an assistant.",
+      "heuristic": true,
+      "patterns": [
+        "Ask AI",
+        "Powered by AI",
+        "chat-bubble",
+        "chatbot",
+        "intercom"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "id": "web.autoplay-carousel",
+      "severity": "minor",
+      "platforms": [
+        "web"
+      ],
+      "stacks": [
+        "js",
+        "web"
+      ],
+      "message": "Carousel that advances on its own.",
+      "fix": "Let the user control it. Auto-advance pauses on hover and focus, and stops for reduced motion.",
+      "heuristic": true,
+      "patterns": [
+        "autoPlay",
+        "\\bautoplay\\b",
+        "setInterval[^\\n]{0,80}(?:slide|carousel|rotate)"
+      ]
+    },
+    {
+      "detect": false,
+      "id": "web.dark-mode-invert",
+      "severity": "minor",
+      "platforms": [
+        "web"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "css"
+      ],
+      "message": "Dark mode is the light layout inverted to gray.",
+      "fix": "Design a real dark palette: surfaces, text, borders, and accent tuned for dark, not flipped."
+    }
+  ]
+}

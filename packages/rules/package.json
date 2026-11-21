@@ -1,0 +1,15 @@
+{
+  "name": "@slopdrop/rules",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The canonical SLOPDROP rule catalog.",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./rules.json": "./rules.json"
+  },
+  "scripts": {
+    "validate": "node validate.mjs"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "slopdrop",
+  "version": "0.1.0",
+  "description": "Find and fix AI-looking, template-looking, and website-in-a-phone UI in mobile, web, and spatial apps, checking user friction first.",
+  "author": {
+    "name": "SLOPDROP contributors"
+  },
+  "homepage": "https://github.com/slopdrop/slopdrop",
+  "license": "MIT",
+  "keywords": ["design", "ui", "ux", "ai-slop", "mcp", "accessibility"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "SLOPDROP",
+    "shortDescription": "Stop AI slop in UI/UX, then fix it at the source",
+    "category": "Coding"
+  }
+}

@@ -1,0 +1,283 @@
+{
+  "family": "xr",
+  "title": "Spatial",
+  "rules": [
+    {
+      "id": "xr.headlocked-hud",
+      "severity": "critical",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Content anchored to the head instead of the body or the world.",
+      "fix": "Body- or world-lock the panel. Keep head-locked content to brief notifications, and give the user a recenter gesture.",
+      "heuristic": true,
+      "patterns": [
+        "headAnchor",
+        "headLocked",
+        "head-locked",
+        "Camera\\.main[\\s\\S]{0,120}Canvas"
+      ]
+    },
+    {
+      "id": "xr.small-gaze-target",
+      "severity": "critical",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Text or target sized in pixels rather than visual angle.",
+      "fix": "Size in angles: body text at least 1.2 degrees, gaze targets at least 2 degrees. Check on the device at 0.5, 1.5, and 3 metres.",
+      "detect": false
+    },
+    {
+      "id": "xr.glass-everywhere",
+      "severity": "noticeable",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Glass and blur on several surfaces in one view.",
+      "fix": "Keep glass for chrome. Content surfaces stay opaque enough to read against passthrough.",
+      "perFile": true,
+      "minMatches": 3,
+      "patterns": [
+        "glassBackgroundEffect",
+        "ultraThinMaterial",
+        "blur\\(",
+        "VisualEffectBlur"
+      ]
+    },
+    {
+      "id": "xr.depth-mismatch",
+      "severity": "noticeable",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Panels placed at inconsistent depths or scales.",
+      "fix": "Use three depth planes (near 0.35-0.6 m, mid 1-2 m, far 3-10 m), one plane per task.",
+      "detect": false
+    },
+    {
+      "id": "xr.forced-locomotion",
+      "severity": "critical",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Smooth continuous locomotion with no teleport alternative.",
+      "fix": "Make teleport plus snap turn the default. Keep smooth locomotion as an option with a vignette and a speed cap.",
+      "heuristic": true,
+      "patterns": [
+        "ContinuousMoveProvider",
+        "smoothLocomotion",
+        "CharacterController[\\s\\S]{0,200}\\.Move\\("
+      ],
+      "fileExcludes": [
+        "Teleport",
+        "teleport"
+      ]
+    },
+    {
+      "id": "xr.no-comfort",
+      "severity": "critical",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Continuous movement without a comfort layer.",
+      "fix": "Add a vignette, a speed cap, snap turn, seated mode, and one-gesture recenter.",
+      "heuristic": true,
+      "fileRequires": [
+        "ContinuousMoveProvider|smoothLocomotion|CharacterController"
+      ],
+      "fileExcludes": [
+        "vignette|Vignette|snapTurn|SnapTurn|seated|Seated"
+      ],
+      "patterns": [
+        "ContinuousMoveProvider|smoothLocomotion|CharacterController"
+      ]
+    },
+    {
+      "id": "xr.raycast-only",
+      "severity": "noticeable",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Interaction only by ray; no direct touch or controller parity.",
+      "fix": "Support direct touch at arm's length, ray beyond it, and both hands and controllers for every action.",
+      "detect": false
+    },
+    {
+      "id": "xr.no-recenter",
+      "severity": "noticeable",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "No recenter or height calibration.",
+      "fix": "Offer recenter on one gesture, always available, and calibrate height on first run.",
+      "detect": false
+    },
+    {
+      "id": "xr.passthrough-contrast",
+      "severity": "critical",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Text drawn directly on passthrough, or on a panel too transparent to read.",
+      "fix": "Put text on an opaque plate or a panel at 90% opacity or more. Check contrast in a bright room.",
+      "heuristic": true,
+      "patterns": [
+        "passthrough[\\s\\S]{0,200}(?:Color\\.white|#fff|#ffffff)",
+        "(?:Color\\.white|#fff)[\\s\\S]{0,200}passthrough"
+      ]
+    },
+    {
+      "id": "xr.flat-web-panel",
+      "severity": "noticeable",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "A two-dimensional web page floating in space.",
+      "fix": "Rebuild the content for spatial hierarchy: panels at one depth plane, direct manipulation, native spatial controls.",
+      "heuristic": true,
+      "patterns": [
+        "WKWebView[\\s\\S]{0,200}(?:plane|quad|panel)",
+        "WebView[\\s\\S]{0,200}(?:plane|quad)"
+      ]
+    },
+    {
+      "id": "xr.no-captions",
+      "severity": "noticeable",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Audio or video without captions or a text alternative.",
+      "fix": "Add captions, a transcript, or a text alternative for every audio-only moment.",
+      "detect": false
+    },
+    {
+      "id": "xr.no-feedback",
+      "severity": "minor",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Interactive elements without hover, audio, or haptic feedback.",
+      "fix": "Every interaction gets a hover state, a commit cue, and a result state.",
+      "detect": false
+    },
+    {
+      "id": "xr.uncanny-avatar",
+      "severity": "minor",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Realistic hands or avatars that read as uncanny.",
+      "fix": "Use a stylized or abstract representation instead of an almost-real one.",
+      "detect": false
+    },
+    {
+      "detect": false,
+      "id": "xr.bloom-glow",
+      "severity": "noticeable",
+      "platforms": [
+        "spatial"
+      ],
+      "stacks": [
+        "swift",
+        "kotlin",
+        "dart",
+        "js",
+        "web"
+      ],
+      "message": "Bloom and emissive glow on every surface.",
+      "fix": "Use emissive only for state. If everything glows, the hierarchy is gone."
+    }
+  ]
+}

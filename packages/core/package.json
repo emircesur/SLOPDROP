@@ -1,0 +1,11 @@
+{
+  "name": "@slopdrop/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure scoring, severity, fingerprint, and waiver logic.",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  }
+}
