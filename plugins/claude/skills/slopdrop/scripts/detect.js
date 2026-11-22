@@ -22,16 +22,14 @@ if (candidates.length > 0) {
   process.exit(result.status ?? 1);
 }
 
-// A globally installed CLI can still do the job.
-const cli = spawnSync("slopdrop", ["detect", ...args], { stdio: "inherit", shell: true });
-if (cli.error === undefined) process.exit(cli.status ?? 1);
-
+// No global fallback on purpose: the npm name "slopdrop" belongs to an
+// unrelated package, so a bare `slopdrop` on PATH may not be this tool.
 console.error(
   [
     "SLOPDROP detector not found.",
     "",
-    "Install it in the project:   npx slopdrop init",
-    "Or run it globally:          npx slopdrop detect <paths> --json",
+    "Run it from GitHub:   npx -y github:emircesur/SLOPDROP detect <paths> --json",
+    "Or from a clone:      node <clone>/packages/detect/bin/slopdrop-detect.mjs <paths> --json",
     "",
     "The review can continue from code only. Say under Not checked that the",
     "detector did not run.",

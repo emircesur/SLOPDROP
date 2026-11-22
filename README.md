@@ -20,10 +20,19 @@ Read the thinking in [DESIGN.md](DESIGN.md) (Turkish) and the system map in [ARC
 
 ## Quickstart
 
+Needs Node 22.5+ and git. SLOPDROP is not on npm: the npm name `slopdrop` belongs to an unrelated package, so `npx slopdrop` would run someone else's code. Run it straight from this repository instead:
+
 ```bash
 # in the project you want reviewed
-npx slopdrop init            # writes .slopdrop/ and registers the MCP server
-npx slopdrop scan src/       # deterministic pass, no model, exit 2 on findings
+npx -y github:emircesur/SLOPDROP scan src/   # deterministic pass, no model, exit 2 on findings
+npx -y github:emircesur/SLOPDROP init        # writes .slopdrop/config.json
+```
+
+Or from a clone, with nothing fetched at run time:
+
+```bash
+git clone https://github.com/emircesur/SLOPDROP
+node SLOPDROP/packages/cli/bin/slopdrop.mjs scan your-app/src
 ```
 
 Then, in any agent that has the skill installed:
@@ -48,9 +57,9 @@ Install the skill where your agent looks for it:
 | GitHub Copilot | `<project>/.github/skills/slopdrop` | `/slopdrop` |
 
 ```bash
-npx slopdrop install --agent claude,codex,antigravity
-npx slopdrop install --project        # commit the folder, the whole team gets it
-npx slopdrop install --dir path/to/skills
+npx -y github:emircesur/SLOPDROP install --agent claude,codex,antigravity
+npx -y github:emircesur/SLOPDROP install --project        # commit the folder, the whole team gets it
+npx -y github:emircesur/SLOPDROP install --dir path/to/skills
 ```
 
 ## The picture at the top
@@ -64,10 +73,10 @@ It drives a local Chrome at 412 × 856, runs the detector on the example screens
 ## Three agents, one project
 
 ```bash
-npx slopdrop mcp install     # detects Claude Desktop, Antigravity, Codex and writes their MCP config
-npx slopdrop sync status     # who wrote what, what changed since your last read
-npx slopdrop sync export     # writes chart.md, findings.jsonl, waivers.json, visits/ for git
-npx slopdrop sync import     # rebuilds the database from those files
+npx -y github:emircesur/SLOPDROP mcp install     # detects Claude Desktop, Antigravity, Codex and writes their MCP config
+npx -y github:emircesur/SLOPDROP sync status     # who wrote what, what changed since your last read
+npx -y github:emircesur/SLOPDROP sync export     # writes chart.md, findings.jsonl, waivers.json, visits/ for git
+npx -y github:emircesur/SLOPDROP sync import     # rebuilds the database from those files
 ```
 
 One SQLite file per project lives at `.slopdrop/project.db`. Every agent connects over MCP; every write is an event with an actor, a base revision, and an idempotency key. Conflicts are recorded, never silently overwritten. Your project stays readable as text: the database is the index and the bus, the committed markdown is the truth.
@@ -79,11 +88,11 @@ Web: React, Next.js, Vue, Nuxt, Svelte, Astro, Angular, plain HTML/CSS, Tailwind
 Spatial: visionOS/SwiftUI, RealityKit, Meta Quest/Unity, WebXR.
 
 ```bash
-npx slopdrop detect src/ --json                 # for agents and CI
-npx slopdrop detect src/ --format sarif > slop.sarif   # GitHub code scanning, VS Code SARIF viewer
-npx slopdrop detect src/ --fail-on noticeable   # minor hits report but do not fail the build
-npx slopdrop detect --list-rules                # every rule with its fix
-npx slopdrop detect --platform mobile .         # override the nearest package.json
+npx -y github:emircesur/SLOPDROP detect src/ --json                 # for agents and CI
+npx -y github:emircesur/SLOPDROP detect src/ --format sarif > slop.sarif   # GitHub code scanning, VS Code SARIF viewer
+npx -y github:emircesur/SLOPDROP detect src/ --fail-on noticeable   # minor hits report but do not fail the build
+npx -y github:emircesur/SLOPDROP detect --list-rules                # every rule with its fix
+npx -y github:emircesur/SLOPDROP detect --platform mobile .         # override the nearest package.json
 ```
 
 A pattern can carry a color check, so `ui.slop-gradient` fires on `linear-gradient(#7C3AED, #DB2777)` or `hsl(270 70% 50%)` but not on `linear-gradient(#fff, #f5f5f5)` or a brand blue, and `ui.glow-shadow` fires on `0 0 16px #b23cf5` but not on a `0 0 0 3px` focus ring or a faint neutral shadow. The check lives in the catalog as data:
@@ -97,7 +106,7 @@ A pattern can carry a color check, so `ui.slop-gradient` fires on `linear-gradie
 In GitHub Actions:
 
 ```yaml
-- run: npx slopdrop detect src --format sarif --fail-on critical > slopdrop.sarif
+- run: npx -y github:emircesur/SLOPDROP detect src --format sarif --fail-on critical > slopdrop.sarif
 - uses: github/codeql-action/upload-sarif@v3
   with: { sarif_file: slopdrop.sarif, category: slopdrop }
 ```

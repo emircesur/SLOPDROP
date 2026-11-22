@@ -3,11 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "description": "Stop AI slop in your UI/UX. Deterministic review, treatment, and a local-first project brain for every coding agent you use.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emircesur/SLOPDROP.git"
+  },
+  "homepage": "https://github.com/emircesur/SLOPDROP#readme",
   "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.5"
   },
+  "bin": {
+    "slopdrop": "packages/cli/bin/slopdrop.mjs",
+    "slopdrop-detect": "packages/detect/bin/slopdrop-detect.mjs"
+  },
+  "files": [
+    "packages/cli/bin/",
+    "packages/detect/bin/",
+    "packages/detect/src/",
+    "packages/core/index.mjs",
+    "packages/rules/",
+    "packages/mcp/src/",
+    "packages/mcp/migrations/",
+    "skills/",
+    "LICENSE",
+    "README.md"
+  ],
   "packageManager": "pnpm@10.29.3",
   "workspaces": [
     "packages/*",

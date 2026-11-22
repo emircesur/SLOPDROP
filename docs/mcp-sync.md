@@ -145,7 +145,7 @@ The installer writes the three known client configs, preserving everything else 
   "mcpServers": {
     "slopdrop": {
       "command": "npx",
-      "args": ["-y", "slopdrop", "mcp", "serve", "--project", "."]
+      "args": ["-y", "github:emircesur/SLOPDROP", "mcp", "serve", "--project", "."]
     }
   }
 }
@@ -155,7 +155,7 @@ The installer writes the three known client configs, preserving everything else 
 # Codex — ~/.codex/config.toml
 [mcp_servers.slopdrop]
 command = "npx"
-args = ["-y", "slopdrop", "mcp", "serve", "--project", "."]
+args = ["-y", "github:emircesur/SLOPDROP", "mcp", "serve", "--project", "."]
 startup_timeout_sec = 20
 ```
 
@@ -165,7 +165,7 @@ startup_timeout_sec = 20
   "mcpServers": {
     "slopdrop": {
       "command": "npx",
-      "args": ["-y", "slopdrop", "mcp", "serve", "--project", "."]
+      "args": ["-y", "github:emircesur/SLOPDROP", "mcp", "serve", "--project", "."]
     }
   }
 }

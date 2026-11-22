@@ -12,6 +12,11 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..", "..", "..");
 const SKILL = join(ROOT, "skills", "slopdrop");
 
+// The npm name "slopdrop" belongs to an unrelated package, so every command
+// and MCP config runs SLOPDROP from its GitHub repository instead.
+export const PACKAGE_SPEC = "github:emircesur/SLOPDROP";
+const RUN = `npx -y ${PACKAGE_SPEC}`;
+
 const USAGE = `Usage: slopdrop <command> [options]
 
   init [--platform web|mobile|spatial]   create .slopdrop/ and a config
@@ -94,9 +99,9 @@ function cmdInit(positional, flags) {
   console.log(`Platform: ${platform}`);
   console.log("");
   console.log("Next:");
-  console.log("  npx slopdrop scan .");
-  console.log("  npx slopdrop install");
-  console.log("  npx slopdrop mcp install");
+  console.log(`  ${RUN} scan .`);
+  console.log(`  ${RUN} install`);
+  console.log(`  ${RUN} mcp install`);
   return 0;
 }
 
@@ -181,7 +186,7 @@ function patchJsonConfig(file, add, label) {
 
 function cmdMcpInstall() {
   const projectRoot = resolve(".");
-  const entry = { command: "npx", args: ["-y", "slopdrop", "mcp", "serve", "--project", projectRoot] };
+  const entry = { command: "npx", args: ["-y", PACKAGE_SPEC, "mcp", "serve", "--project", projectRoot] };
   let changed = 0;
 
   const appData = process.env.APPDATA;
@@ -211,7 +216,7 @@ function cmdMcpInstall() {
     if (current.includes("[mcp_servers.slopdrop]")) {
       console.log("Codex: already registered");
     } else {
-      const block = `\n[mcp_servers.slopdrop]\ncommand = "npx"\nargs = ["-y", "slopdrop", "mcp", "serve", "--project", "${projectRoot.replace(/\\/g, "\\\\")}"]\nstartup_timeout_sec = 20\n`;
+      const block = `\n[mcp_servers.slopdrop]\ncommand = "npx"\nargs = ["-y", "${PACKAGE_SPEC}", "mcp", "serve", "--project", "${projectRoot.replace(/\\/g, "\\\\")}"]\nstartup_timeout_sec = 20\n`;
       if (existsSync(codexFile)) writeFileSync(`${codexFile}.bak`, current);
       writeFileSync(codexFile, current + block);
       console.log(`Codex: added slopdrop to ${codexFile}`);

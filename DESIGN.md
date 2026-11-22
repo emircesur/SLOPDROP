@@ -983,10 +983,10 @@ Beceri, paketler kurulu olmadan da çalışmalı: dedektör yoksa "kontrol edilm
 
 | Yüzey | Ne | Nasıl |
 |---|---|---|
-| Beceri | `skills/slopdrop/` | `npx slopdrop install`, elle kopyalama, `skills` CLI |
+| Beceri | `skills/slopdrop/` | `npx -y github:emircesur/SLOPDROP install`, elle kopyalama, `skills` CLI |
 | Claude plugin | `.claude-plugin/plugin.json` | marketplace + install |
 | Codex plugin | `.codex-plugin/plugin.json` | `codex plugin marketplace add` |
-| npm | `slopdrop` | `npx slopdrop ...` |
+| GitHub | `github:emircesur/SLOPDROP` | `npx -y github:emircesur/SLOPDROP ...` (npm'deki `slopdrop` adı başka bir pakete ait; npm'e çıkılırsa kapsamlı bir ad gerekir) |
 | CI | GitHub Action | `slopdrop detect --json`, eşik kontrolü |
 | MCP | stdio / localhost | Claude Desktop, Antigravity, Codex, Cursor |
 | Editör | VS Code eklentisi (M1) | tanılama olarak bulgular |
@@ -1081,7 +1081,7 @@ DB, insan için okunmaz. İnsan için doğru olan metindir:
   "mcpServers": {
     "slopdrop": {
       "command": "npx",
-      "args": ["-y", "slopdrop", "mcp", "serve", "--project", "C:/work/app"]
+      "args": ["-y", "github:emircesur/SLOPDROP", "mcp", "serve", "--project", "C:/work/app"]
     }
   }
 }
@@ -1092,7 +1092,7 @@ DB, insan için okunmaz. İnsan için doğru olan metindir:
 ```toml
 [mcp_servers.slopdrop]
 command = "npx"
-args = ["-y", "slopdrop", "mcp", "serve", "--project", "."]
+args = ["-y", "github:emircesur/SLOPDROP", "mcp", "serve", "--project", "."]
 startup_timeout_sec = 20
 ```
 
@@ -1103,7 +1103,7 @@ startup_timeout_sec = 20
   "mcpServers": {
     "slopdrop": {
       "command": "npx",
-      "args": ["-y", "slopdrop", "mcp", "serve", "--project", "."]
+      "args": ["-y", "github:emircesur/SLOPDROP", "mcp", "serve", "--project", "."]
     }
   }
 }
