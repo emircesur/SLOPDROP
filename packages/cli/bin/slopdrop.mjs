@@ -15,7 +15,8 @@ const SKILL = join(ROOT, "skills", "slopdrop");
 const USAGE = `Usage: slopdrop <command> [options]
 
   init [--platform web|mobile|spatial]   create .slopdrop/ and a config
-  scan [paths...] [--json]               deterministic scan (exit 2 on findings)
+  scan [paths...] [--format text|json|sarif] [--fail-on minor|noticeable|critical]
+                                         deterministic scan (exit 2 on findings)
   install [--agent a,b] [--project]      install the skill for your agents
           [--dir <folder>]
   mcp install                            register the MCP server with installed clients
@@ -44,7 +45,7 @@ function parse(argv) {
     if (arg.startsWith("--")) {
       const [key, inline] = arg.slice(2).split("=");
       if (inline !== undefined) flags.set(key, inline);
-      else if (argv[i + 1] && !argv[i + 1].startsWith("--") && ["agent", "dir", "project", "platform"].includes(key)) {
+      else if (argv[i + 1] && !argv[i + 1].startsWith("--") && ["agent", "dir", "project", "platform", "ignore", "format", "fail-on"].includes(key)) {
         flags.set(key, argv[++i]);
       } else flags.set(key, true);
     } else {

@@ -23,7 +23,9 @@
       "patterns": [
         "(?:trusted|loved|used) by (?:over |more than )?[\\d,.]+\\s*[kKM]?\\+?\\s*(?:teams|companies|developers|users|customers|people|businesses)",
         "join (?:over |more than )?[\\d,.]+\\s*[kKM]?\\+?\\s+(?:teams|users|developers|customers|people|creators)",
-        "\\b\\d+x (?:faster|better|more productive|cheaper)\\b"
+        "\\b\\d+x (?:faster|better|more productive|cheaper)\\b",
+        "[\\d.,]+\\s*[bBkKM]?\\+?\\s*(?:ekibin|şirketin|kullanıcının|müşterinin|geliştiricinin|işletmenin) güvendiği",
+        "\\b\\d+ kat daha (?:hızlı|iyi|verimli|ucuz)\\b"
       ],
       "ignoreCase": true
     },

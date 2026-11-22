@@ -5,6 +5,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { compilePattern, detectableRules } from "../../rules/index.mjs";
 import { fingerprint, sortFindings } from "../../core/index.mjs";
+import { textHasColor } from "./color.mjs";
 
 export const VERSION = 1;
 
@@ -268,6 +269,7 @@ export function scanSource(text, file, options = {}) {
       for (const match of code.matchAll(regex)) {
         const line = lineAt(starts, match.index);
         if (seenLines.has(line)) continue;
+        if (pattern.colors && !textHasColor(match[0], pattern.colors)) continue;
         if (ignoredByComment(lines, line, rule.id)) continue;
         if (rule.excludePatterns) {
           const lineText = lines[line - 1] ?? "";

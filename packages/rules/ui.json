@@ -15,6 +15,7 @@
       "stacks": [
         "js",
         "web",
+        "css",
         "swift",
         "kotlin",
         "dart",
@@ -23,8 +24,126 @@
       "message": "Purple, indigo, or pink gradient: the default AI palette.",
       "fix": "Use a flat surface from the theme. Keep a gradient only if the brand owns it, and record that in the chart.",
       "patterns": [
-        "(?:LinearGradient|linear-gradient|RadialGradient|Brush\\.(?:linear|radial|sweep|horizontal|vertical)Gradient)[^\\n]{0,240}(?:#(?:[6-9a-f][0-9a-f])[0-9a-f]{4}|purple|violet|indigo|fuchsia|deepPurple)",
-        "bg-gradient-to-[a-z]+[^\"'`\\n]*(?:from|via|to)-(?:purple|violet|indigo|fuchsia|pink)-\\d{2,3}"
+        {
+          "re": "(?:repeating-)?(?:linear|radial|conic)-gradient\\([^;}\\n]{0,400}",
+          "colors": {
+            "hues": [
+              [
+                238,
+                340
+              ]
+            ],
+            "minSaturation": 0.25,
+            "lightness": [
+              0.08,
+              0.92
+            ],
+            "minAlpha": 0.15
+          }
+        },
+        {
+          "re": "\\.create(?:Linear|Radial|Conic)Gradient\\s*\\([^\\n]{0,400}",
+          "colors": {
+            "hues": [
+              [
+                238,
+                340
+              ]
+            ],
+            "minSaturation": 0.25,
+            "lightness": [
+              0.08,
+              0.92
+            ],
+            "minAlpha": 0.15
+          }
+        },
+        {
+          "re": "<(?:LinearGradient|RadialGradient)\\b[^>]{0,400}",
+          "colors": {
+            "hues": [
+              [
+                238,
+                340
+              ]
+            ],
+            "minSaturation": 0.25,
+            "lightness": [
+              0.08,
+              0.92
+            ],
+            "minAlpha": 0.15
+          }
+        },
+        {
+          "re": "\\b(?:LinearGradient|RadialGradient|AngularGradient|EllipticalGradient)\\s*\\([^\\n]{0,300}",
+          "colors": {
+            "hues": [
+              [
+                238,
+                340
+              ]
+            ],
+            "minSaturation": 0.25,
+            "lightness": [
+              0.08,
+              0.92
+            ],
+            "minAlpha": 0.15
+          }
+        },
+        {
+          "re": "\\.(?:linearGradient|radialGradient)\\s*\\([^\\n]{0,300}",
+          "colors": {
+            "hues": [
+              [
+                238,
+                340
+              ]
+            ],
+            "minSaturation": 0.25,
+            "lightness": [
+              0.08,
+              0.92
+            ],
+            "minAlpha": 0.15
+          }
+        },
+        {
+          "re": "Brush\\.(?:linear|radial|sweep|horizontal|vertical)Gradient\\s*\\([^\\n]{0,300}",
+          "colors": {
+            "hues": [
+              [
+                238,
+                340
+              ]
+            ],
+            "minSaturation": 0.25,
+            "lightness": [
+              0.08,
+              0.92
+            ],
+            "minAlpha": 0.15
+          }
+        },
+        {
+          "re": "<gradient\\b[^>]{0,400}",
+          "colors": {
+            "hues": [
+              [
+                238,
+                340
+              ]
+            ],
+            "minSaturation": 0.25,
+            "lightness": [
+              0.08,
+              0.92
+            ],
+            "minAlpha": 0.15
+          }
+        },
+        "bg-(?:gradient|linear)-to-[a-z]+[^\"'`\\n]*(?:from|via|to)-(?:purple|violet|indigo|fuchsia|pink)-\\d{2,3}"
       ]
     },
     {
@@ -40,6 +159,7 @@
       "stacks": [
         "js",
         "web",
+        "css",
         "swift",
         "kotlin",
         "dart"
@@ -89,16 +209,51 @@
       "stacks": [
         "js",
         "web",
+        "css",
         "swift",
         "kotlin",
         "dart"
       ],
-      "message": "Colored glow shadow.",
+      "message": "Colored glow: a zero-offset, blurred, saturated shadow on a box, text, or icon.",
       "fix": "Shadows carry depth, not color: use platform elevation or a soft neutral shadow, or remove it.",
       "patterns": [
         "shadowColor\\s*[:=]\\s*[\"']?(?:purple|violet|indigo|blue|pink|cyan|mint|teal|accent)",
-        "\\.shadow\\(\\s*color:\\s*(?:Color\\.)?(?:purple|violet|indigo|blue|pink|cyan|mint|teal|accent)",
-        "box-shadow:[^;\\n]*(?:purple|violet|indigo|blue|pink|cyan|mint|teal|glow)"
+        "\\.shadow\\(\\s*color:\\s*(?:Color\\.|\\.)?(?:purple|violet|indigo|blue|pink|cyan|mint|teal|accent)",
+        "box-shadow:[^;\\n]*(?:purple|violet|indigo|fuchsia|pink|cyan|glow)",
+        {
+          "re": "(?:box|text)-shadow:\\s*(?:[^;}\\n]*?,\\s*)?(?:inset\\s+)?0(?:px)?\\s+0(?:px)?\\s+[1-9]\\d*(?:\\.\\d+)?(?:px|rem|em)?[^;}\\n]*",
+          "colors": {
+            "minSaturation": 0.35,
+            "lightness": [
+              0.15,
+              0.95
+            ],
+            "minAlpha": 0.12
+          }
+        },
+        {
+          "re": "drop-shadow\\(\\s*0(?:px)?\\s+0(?:px)?\\s+[1-9][^)]*\\)",
+          "colors": {
+            "minSaturation": 0.35,
+            "lightness": [
+              0.15,
+              0.95
+            ],
+            "minAlpha": 0.12
+          }
+        },
+        {
+          "re": "shadow-\\[0_0_[1-9][^\\]\\s]*\\]",
+          "colors": {
+            "minSaturation": 0.35,
+            "lightness": [
+              0.15,
+              0.95
+            ],
+            "minAlpha": 0.12
+          }
+        },
+        "shadow-(?:purple|violet|indigo|fuchsia|pink|cyan)-\\d{3}(?:/\\d+)?"
       ]
     },
     {
@@ -163,6 +318,7 @@
       "stacks": [
         "js",
         "web",
+        "css",
         "swift",
         "kotlin",
         "dart"
@@ -206,7 +362,7 @@
         "wand\\.and\\.stars",
         "\\bauto_awesome\\b",
         "\\bSparkles?\\b",
-        "✨"
+        "[✨✦✧❇❈]"
       ]
     },
     {
@@ -249,14 +405,17 @@
       ],
       "stacks": [
         "js",
-        "web"
+        "web",
+        "css"
       ],
       "message": "Icon in a tinted rounded square, the generated default for every row and feature card.",
       "fix": "Put the icon inline in the text color, or drop it. Keep a tile only where the shape carries meaning, like an app icon.",
       "patterns": [
         "[\"'][^\"'`\\n]*(?=[^\"'`\\n]*\\brounded-(?:md|lg|xl|2xl)\\b)(?=[^\"'`\\n]*\\bbg-(?:[a-z]+-(?:50|100)|[a-z]+-\\d{3}/\\d+|primary/\\d+|accent/\\d+)\\b)(?=[^\"'`\\n]*\\bw-(?:8|9|10|11|12)\\b)(?=[^\"'`\\n]*\\bh-(?:8|9|10|11|12)\\b)(?=[^\"'`\\n]*(?:items-center|place-items-center|justify-center))[^\"'`\\n]*[\"']",
-        "[\"'][^\"'`\\n]*(?=[^\"'`\\n]*\\brounded-(?:md|lg|xl|2xl)\\b)(?=[^\"'`\\n]*\\bbg-(?:[a-z]+-(?:50|100)|[a-z]+-\\d{3}/\\d+|primary/\\d+|accent/\\d+)\\b)(?=[^\"'`\\n]*\\bsize-(?:8|9|10|11|12)\\b)(?=[^\"'`\\n]*(?:items-center|place-items-center|justify-center))[^\"'`\\n]*[\"']"
-      ]
+        "[\"'][^\"'`\\n]*(?=[^\"'`\\n]*\\brounded-(?:md|lg|xl|2xl)\\b)(?=[^\"'`\\n]*\\bbg-(?:[a-z]+-(?:50|100)|[a-z]+-\\d{3}/\\d+|primary/\\d+|accent/\\d+)\\b)(?=[^\"'`\\n]*\\bsize-(?:8|9|10|11|12)\\b)(?=[^\"'`\\n]*(?:items-center|place-items-center|justify-center))[^\"'`\\n]*[\"']",
+        "\\{(?=[^{}]*(?<![\\w-])width:\\s*((?:2[89]|[3-5]\\d))px)(?=[^{}]*(?<![\\w-])height:\\s*\\1px)(?=[^{}]*(?<![\\w-])border-radius:\\s*(?:[4-9]|1\\d|2[0-4])px)(?=[^{}]*(?:place-items|align-items|justify-content):\\s*center)[^{}]*\\}"
+      ],
+      "heuristic": true
     },
     {
       "id": "ui.tracked-caps-label",
@@ -270,6 +429,7 @@
       "stacks": [
         "js",
         "web",
+        "css",
         "swift",
         "kotlin"
       ],

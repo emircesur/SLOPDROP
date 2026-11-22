@@ -31,6 +31,21 @@ for (const rule of rules) {
     } catch (err) {
       errors.push(`${where}: bad pattern ${JSON.stringify(pattern)} (${err.message})`);
     }
+    if (typeof pattern === "object" && pattern.colors !== undefined) {
+      const c = pattern.colors;
+      const unit = (v) => typeof v === "number" && v >= 0 && v <= 1;
+      const known = new Set(["hues", "minSaturation", "lightness", "minAlpha"]);
+      for (const key of Object.keys(c)) if (!known.has(key)) errors.push(`${where}: unknown colors key "${key}"`);
+      if (c.hues !== undefined && !(Array.isArray(c.hues) && c.hues.every((r) => Array.isArray(r) && r.length === 2 && r.every((h) => h >= 0 && h <= 360)))) {
+        errors.push(`${where}: colors.hues must be [[from, to], ...] in degrees`);
+      }
+      if (c.lightness !== undefined && !(Array.isArray(c.lightness) && c.lightness.length === 2 && c.lightness.every(unit))) {
+        errors.push(`${where}: colors.lightness must be [min, max] in 0..1`);
+      }
+      for (const key of ["minSaturation", "minAlpha"]) {
+        if (c[key] !== undefined && !unit(c[key])) errors.push(`${where}: colors.${key} must be in 0..1`);
+      }
+    }
   }
   if (rule.minMatches !== undefined && (!Number.isInteger(rule.minMatches) || rule.minMatches < 1)) {
     errors.push(`${where}: minMatches must be a positive integer`);

@@ -4,15 +4,22 @@
 import { pathToFileURL } from "node:url";
 import { loadRules, detectableRules } from "../../rules/index.mjs";
 import { scan } from "../src/engine.mjs";
+import { toSarif } from "../src/sarif.mjs";
 
-const USAGE = `Usage: slopdrop detect [paths...] [--json] [--platform mobile|web|universal|spatial]
+const FORMATS = ["text", "json", "sarif"];
+const SEVERITY_ORDER = ["minor", "noticeable", "critical"];
+
+const USAGE = `Usage: slopdrop detect [paths...] [--format text|json|sarif] [--json]
+                          [--platform mobile|web|universal|spatial]
+                          [--fail-on minor|noticeable|critical]
                           [--ignore rule,rule] [--include-tests] [--list-rules]
 
 Scans mobile, web, and spatial source for generated-looking UI, website-in-a-phone
 patterns, copy slop, accessibility defaults, and performance leads. The platform
 comes from the nearest package.json; --platform overrides it.
 
-Exit code: 0 clean, 2 findings, 1 error.
+Exit code: 0 clean, 2 findings at or above --fail-on (default: minor), 1 error.
+--format sarif writes SARIF 2.1.0 for GitHub code scanning and other viewers.
 Silence one line with a comment: slopdrop-ignore <rule-id>
 Project config: .slopdrop/config.json  { "ignoreRules": [], "ignorePaths": [] }`;
 
@@ -67,7 +74,8 @@ export function main(argv) {
     return 0;
   }
 
-  const json = args.includes("--json");
+  let format = args.includes("--json") ? "json" : "text";
+  let failOn = "minor";
   const includeTests = args.includes("--include-tests");
   let platform = null;
   const ignoreRules = [];
@@ -79,6 +87,18 @@ export function main(argv) {
       platform = args[++i];
       if (!["mobile", "web", "universal", "spatial"].includes(platform)) {
         console.error(USAGE);
+        return 1;
+      }
+    } else if (arg === "--format") {
+      format = args[++i];
+      if (!FORMATS.includes(format)) {
+        console.error(`--format must be one of ${FORMATS.join(", ")}\n\n${USAGE}`);
+        return 1;
+      }
+    } else if (arg === "--fail-on") {
+      failOn = args[++i];
+      if (!SEVERITY_ORDER.includes(failOn)) {
+        console.error(`--fail-on must be one of ${SEVERITY_ORDER.join(", ")}\n\n${USAGE}`);
         return 1;
       }
     } else if (arg === "--ignore") {
@@ -112,8 +132,10 @@ export function main(argv) {
     return 1;
   }
 
-  if (json) {
+  if (format === "json") {
     console.log(JSON.stringify({ ...result, generatedBy: "slopdrop", note: "Hits are leads, not findings." }, null, 2));
+  } else if (format === "sarif") {
+    console.log(JSON.stringify(toSarif(result, loadRules()), null, 2));
   } else {
     console.log(formatText(result));
   }
@@ -123,7 +145,9 @@ export function main(argv) {
     return 1;
   }
 
-  return result.findings.length ? 2 : 0;
+  const threshold = SEVERITY_ORDER.indexOf(failOn);
+  const gating = result.findings.filter((f) => SEVERITY_ORDER.indexOf(f.severity) >= threshold);
+  return gating.length ? 2 : 0;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

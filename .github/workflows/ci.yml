@@ -27,7 +27,13 @@ jobs:
       - name: Plugin packages
         run: node scripts/build-plugins.mjs
       - name: Detector is clean on the clean fixture
-        run: node packages/detect/bin/slopdrop-detect.mjs packages/detect/test/fixtures/clean
+        run: node packages/detect/bin/slopdrop-detect.mjs packages/detect/test/fixtures/clean --platform web
+      - name: Treated example screens are clean on web and mobile
+        run: |
+          node packages/detect/bin/slopdrop-detect.mjs examples/kiyi-bank/treated.html examples/kiyi-bank/neon-treated.html --platform web
+          node packages/detect/bin/slopdrop-detect.mjs examples/kiyi-bank/treated.html examples/kiyi-bank/neon-treated.html --platform mobile
+      - name: SARIF output parses
+        run: node packages/detect/bin/slopdrop-detect.mjs examples/kiyi-bank --platform web --format sarif --fail-on critical | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);if(j.version!=='2.1.0'||!j.runs[0].results.length)process.exit(1)})"
       - name: Detector exits 2 on the slop fixture
         run: |
           set +e

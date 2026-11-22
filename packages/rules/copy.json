@@ -20,11 +20,16 @@
         "dart",
         "xml"
       ],
-      "message": "\"Oops\" or \"Something went wrong\": no cause, no next step.",
+      "message": "\"Oops\", \"Something went wrong\", \"Bir hata oluştu\": no cause, no next step.",
       "fix": "Say what failed in the product's words and what the user can do: retry, check the connection, contact support.",
       "patterns": [
         "\\boops\\b",
-        "something went wrong"
+        "something went wrong",
+        "an (?:unexpected )?error (?:has )?occurred[.!]*\\s*['\"`<]",
+        "bir (?:şeyler|şey) ters gitti",
+        "bir hata oluştu[.!]*\\s*['\"`<]",
+        "\\bhay aksi\\b",
+        "\\beyvah\\b"
       ],
       "ignoreCase": true
     },
@@ -58,7 +63,14 @@
         "game[- ]?changer",
         "revolutioni[sz]\\w*",
         "\\bunleash\\b",
-        "\\bempower(?:s|ing)? you"
+        "\\bempower(?:s|ing)? you",
+        "potansiyelini (?:açığa|ortaya) çıkar",
+        "\\bzahmetsiz(?:ce)?\\b",
+        "(?:sorunsuz|kusursuz) bir deneyim",
+        "hepsi tek (?:bir )?yerde",
+        "oyunun kurallarını değiştir",
+        "devrim niteliğinde",
+        "bir üst seviyeye taşı"
       ],
       "ignoreCase": true
     },
@@ -79,12 +91,21 @@
         "dart",
         "xml"
       ],
-      "message": "\"Welcome back!\" spending prime screen space on a greeting.",
+      "message": "A greeting (\"Welcome back!\", \"Good evening, Deniz\", \"İyi akşamlar\") spending prime screen space.",
       "fix": "Use that space for what a returning user came to do.",
       "patterns": [
-        "welcome back[^'<\\n]{0,40}!"
+        "welcome back[^'<\\n]{0,40}!",
+        {
+          "re": "(?<!\\p{L})(?:welcome back|good (?:morning|afternoon|evening)|hey there|g[üu]naydın|[iİ]yi (?:akşamlar|günler|geceler|sabahlar)|(?:tekrar )?hoş ?geldin(?:iz)?|merhaba)\\s*,\\s*(?:\\$\\{|\\{|\\p{Lu})",
+          "flags": "u"
+        },
+        {
+          "re": "(?<!\\p{L})(?:tekrar )?hoş ?geldin(?:iz)?\\s*!",
+          "flags": "u"
+        }
       ],
-      "ignoreCase": true
+      "ignoreCase": true,
+      "heuristic": true
     },
     {
       "id": "copy.vague-button",
@@ -107,7 +128,8 @@
       "fix": "Use a verb and an object: \"Save address\", \"Send invoice\", \"Book table\".",
       "patterns": [
         "(?:title|label|text)\\s*[=:]\\s*\\{?\\s*['\"](?:Submit|Click here|Tap here)['\"]",
-        ">\\s*(?:Submit|Click here|Tap here)\\s*<"
+        ">\\s*(?:Submit|Click here|Tap here)\\s*<",
+        ">\\s*(?:Gönder|Tıkla(?:yın)?|Buraya tıkla(?:yın)?|Tıklayınız)\\s*<"
       ],
       "ignoreCase": true
     },
