@@ -4,7 +4,7 @@
 
 ![The same bank home screen before and after SLOPDROP: 16 detector findings on the neon version, none on the treated one](docs/assets/before-after.en.png)
 
-<sub>Türkçe: [önce / sonra görseli](docs/assets/before-after.tr.png) · [tasarım notları](DESIGN.md) · [saha testi](examples/field-test-2.md)</sub>
+<sub>More: [a bakery website, before and after](#a-second-example-a-bakery-website) · Türkçe: [önce / sonra görseli](docs/assets/before-after.tr.png) · [tasarım notları](DESIGN.md) · [saha testi](examples/field-test-2.md)</sub>
 
 Slop is not ugly. Slop is generic: the purple gradient, the white card with a gray border, the sparkle where search used to be, "Oops! Something went wrong", "Trusted by 10,000+ teams", a web page floating in a headset, a hero section inside a phone app.
 
@@ -62,13 +62,19 @@ npx -y github:emircesur/SLOPDROP install --project        # commit the folder, t
 npx -y github:emircesur/SLOPDROP install --dir path/to/skills
 ```
 
-## The picture at the top
+## A second example: a bakery website
+
+A neighborhood bakery whose site was generated from a SaaS template: a glass nav with "Pricing", an "AI-powered freshness" eyebrow, invented stats, Jane Doe from Acme Inc., and an "Ask AI" bubble. The detector finds 42 hits from 19 rules across six families. The treated page leads with what a bakery customer came for, what is out of the oven, what it costs, and what is left, and gets zero on web and mobile rules.
+
+![A bakery website before and after SLOPDROP: 42 findings from 19 rules on the generated template, none on the treated page](docs/assets/before-after-bakery.en.png)
+
+## The pictures
 
 ```bash
-npm run image        # rebuilds docs/assets/before-after.en.png and .tr.png
+npm run image        # rebuilds every before/after picture in docs/assets/
 ```
 
-It drives a local Chrome at 412 × 856, runs the detector on the example screens for the counts, and places the markers from the page's own layout. Nothing in it is typed by hand except the five treatment notes. The screens are in [examples/kiyi-bank/](examples/kiyi-bank/) (Turkish) and [examples/kiyi-bank/en/](examples/kiyi-bank/en/) (English).
+It drives a local Chrome (412 × 856 for the phone screens, 1280 × 780 for the bakery), runs the detector on the example pages for the counts, and places the markers from each page's own layout. Nothing in them is typed by hand except the treatment notes. The pages are in [examples/kiyi-bank/](examples/kiyi-bank/) (Turkish), [examples/kiyi-bank/en/](examples/kiyi-bank/en/) (English), and [examples/linden-bakehouse/](examples/linden-bakehouse/).
 
 ## Three agents, one project
 

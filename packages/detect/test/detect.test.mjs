@@ -208,6 +208,23 @@ for (const [lang, dir] of [["tr", BANK], ["en", join(BANK, "en")]]) {
   });
 }
 
+test("Linden Bakehouse: the SaaS template on a bakery trips many families, the treated site none", () => {
+  const dir = join(ROOT, "examples", "linden-bakehouse");
+  const slop = scan([join(dir, "slop.html")], { platform: "web", rules: RULES });
+  const ids = new Set(slop.findings.map((f) => f.rule));
+  for (const expected of [
+    "ui.slop-gradient", "ui.gradient-text", "ui.glow-shadow", "ui.glass-everywhere", "ui.tracked-caps-label",
+    "copy.buzzword", "copy.exclamation", "truth.unverified-claim", "truth.invented-stat", "truth.placeholder-content",
+    "a11y.low-contrast", "a11y.tiny-text", "motion.hover-scale", "web.chatbot-bubble",
+  ]) {
+    assert.ok(ids.has(expected), `expected ${expected}, got ${[...ids].join(", ")}`);
+  }
+  assert.ok(new Set(slop.findings.map((f) => f.family)).size >= 6, "spans at least six rule families");
+  for (const platform of ["web", "mobile"]) {
+    assert.deepEqual(scan([join(dir, "treated.html")], { platform, rules: RULES }).findings, [], `treated on ${platform}`);
+  }
+});
+
 test("greetings with a name are caught in English and Turkish", () => {
   for (const text of ["Good evening, Dana", "Hello, Dana", "Hi, {user.name}", "Welcome back!", "İyi akşamlar, Deniz", "Merhaba, Deniz", "Hoş geldin!"]) {
     assert.ok(ruleIds(html(`<h1>${text}</h1>`)).includes("copy.welcome-back"), text);

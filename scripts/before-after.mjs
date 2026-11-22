@@ -2,7 +2,8 @@
 // Renders the README's before/after picture from the example screens.
 //
 //   node scripts/before-after.mjs              # English and Turkish
-//   node scripts/before-after.mjs --lang en    # one language
+//   node scripts/before-after.mjs --lang en    # one language of the bank picture
+//   node scripts/before-after.mjs --only bakery  # just the bakery picture
 //
 // Needs a local Chrome or Chromium (set CHROME_PATH if it is not found).
 // Everything is computed: the screenshots, where the markers sit, and the
@@ -295,13 +296,153 @@ async function render(browser, lang) {
   console.log(`${out.slice(ROOT.length + 1)}  (${lang})`);
 }
 
+// ---------- the bakery: a desktop site, stacked ----------
+
+const DESKTOP = { width: 1280, height: 780 };
+const SHOT_WIDTH = 860; // the screenshot as it appears in the picture
+const SCALE = SHOT_WIDTH / DESKTOP.width;
+
+const BAKERY = {
+  dir: "examples/linden-bakehouse",
+  before: "slop.html",
+  after: "treated.html",
+  url: "lindenbakehouse.example",
+  out: "before-after-bakery.en.png",
+  title: "A neighborhood bakery's website, before and after one review-and-treat pass.",
+  beforeLabel: "Before SLOPDROP: a generated SaaS template with a croissant on it",
+  afterLabel: "After SLOPDROP: the page a bakery customer needs",
+  // Rules that get a numbered marker on the screenshot, and where it goes.
+  markers: {
+    "ui.slop-gradient": { selector: ".nav .cta", at: "top-right" },
+    "ui.emoji-icon": { selector: ".logo-tile", at: "top-left" },
+    "ui.tracked-caps-label": { selector: ".eyebrow", at: "left" },
+    "ui.gradient-text": { selector: ".hero .shine", at: "top-right" },
+    "copy.buzzword": { selector: ".lede", at: "left" },
+    "truth.unverified-claim": { selector: ".proof", at: "left" },
+    "ui.glass-everywhere": { selector: ".panel", at: "top-right" },
+    "truth.invented-stat": { selector: ".stat:nth-child(4) strong", at: "top-right" },
+    "ui.icon-tile": { selector: ".stat:nth-child(2) .icon", at: "top-right" },
+    "web.chatbot-bubble": { selector: ".ask", at: "top-left" },
+  },
+  notes: [
+    "Today's board replaces the hero: times, prices, what is left",
+    "One action, order for pickup, in the bakery's own rust",
+    "Hours, address, and phone above the fold",
+    "Pickup rules and allergens in plain words",
+    "No invented customers, stats, or reviews",
+    "Its own look: paper, a serif, a chalkboard",
+  ],
+  footer: "Linden Bakehouse is fictional. Pages: examples/linden-bakehouse/. Rendered by scripts/before-after.mjs from the detector's real output.",
+};
+
+const DESKTOP_MARKER_JS = (spec) => `(() => {
+  const spec = ${JSON.stringify(spec)};
+  return Object.entries(spec).flatMap(([rule, m]) => {
+    const el = document.querySelector(m.selector);
+    if (!el) return [];
+    const r = el.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return [];
+    const x = m.at === "top-right" ? r.right - 4 : m.at === "top-left" ? r.left + 4 : Math.max(r.left - 22, 12);
+    const y = m.at === "left" ? r.top + Math.min(r.height / 2, 18) : r.top + 4;
+    return [{ rule, x, y }];
+  });
+})()`;
+
+function desktopPage({ cfg, beforeRun, afterRun, beforeShot, afterShot, markers }) {
+  const marked = beforeRun.counts.filter(([rule]) => markers.some((m) => m.rule === rule));
+  const numbers = new Map(marked.map(([rule], i) => [rule, i + 1]));
+  const dots = markers
+    .filter((m) => numbers.has(m.rule))
+    .map((m) => `<span class="dot" style="left:${(m.x * SCALE).toFixed(1)}px;top:${(m.y * SCALE + 30).toFixed(1)}px">${numbers.get(m.rule)}</span>`)
+    .join("");
+  const hits = beforeRun.counts
+    .map(([rule, n]) => `<li>${numbers.has(rule) ? `<span class="dot small">${numbers.get(rule)}</span>` : `<span class="bullet"></span>`}<code>${n}x ${esc(rule)}</code></li>`)
+    .join("");
+  const notes = cfg.notes.map((n) => `<li><span class="ok"></span>${esc(n)}</li>`).join("");
+  const frame = (shot, overlay = "") =>
+    `<div class="frame"><div class="bar"><i></i><i></i><i></i><span>${esc(cfg.url)}</span></div><div class="shot"><img src="data:image/png;base64,${shot}" alt="">${overlay}</div></div>`;
+
+  return `<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}html,body{margin:0}
+body{width:932px;background:#f3f1ec;color:#1b1d22;font:16px/1.35 "Segoe UI",system-ui,sans-serif;padding:32px 36px 28px}
+h1{font-size:38px;margin:0 0 2px;letter-spacing:-.5px}.sub{color:#686c76;font-size:16px;margin:0 0 30px}
+h2{font-size:20px;margin:0}.meta{color:#686c76;font-size:14px;margin:2px 0 12px}
+section+section{margin-top:34px}
+.frame{width:${SHOT_WIDTH}px;border-radius:10px;overflow:visible;outline:1px solid #d6d1c8;background:#fff}
+.bar{height:30px;display:flex;align-items:center;gap:7px;padding:0 12px;background:#e7e3db;border-radius:10px 10px 0 0}
+.bar i{width:10px;height:10px;border-radius:50%;background:#c9c3b8}
+.bar span{margin-left:14px;padding:3px 12px;border-radius:5px;background:#f7f5f0;color:#686c76;font-size:12px;width:320px}
+.shot{position:relative;margin-top:-30px;padding-top:30px}
+.shot img{display:block;width:${SHOT_WIDTH}px;border-radius:0 0 10px 10px}
+.dot{position:absolute;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:#d65c52;color:#fff;font:700 12px/24px "Segoe UI",system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2.5px #fff;z-index:2}
+.dot.small{position:static;transform:none;display:inline-block;width:19px;height:19px;line-height:19px;font-size:10.5px;box-shadow:0 0 0 2px #fff;margin-right:11px;flex:none}
+.bullet{width:7px;height:7px;border-radius:50%;background:#5a606b;margin:0 17px 0 6px;flex:none}
+.term{margin-top:16px;background:#181a1f;color:#e2e4e8;border-radius:11px;padding:15px 18px;font:13.5px/1.55 Consolas,"SF Mono",Menlo,monospace}
+.term .cmd{font-weight:700}.term .cmd b{color:#8c929e}
+.term .bad{color:#f0968c}.term .good{color:#8cdcb9}
+.term ul{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);column-gap:10px}
+.term.notes ul{grid-template-columns:1fr 1fr;font-family:"Segoe UI",system-ui,sans-serif;font-size:14px}
+.term li{display:flex;align-items:center;min-height:23px}
+.term code{font:inherit;white-space:nowrap}
+.ok{width:11px;height:11px;border-radius:50%;background:#4ebe96;margin:0 12px 0 4px;flex:none}
+.foot{color:#686c76;font-size:12px;margin-top:22px}
+</style></head><body>
+<h1>SLOPDROP</h1><p class="sub">${esc(cfg.title)}</p>
+<section><h2>${esc(cfg.beforeLabel)}</h2><p class="meta">${esc(cfg.before)} · ${beforeRun.total} findings from ${beforeRun.counts.length} rules</p>
+ ${frame(beforeShot, dots)}
+ <div class="term"><div class="cmd"><b>$</b> slopdrop detect ${esc(cfg.before)}</div><div class="bad">${esc(summaryLine(beforeRun))}</div><ul>${hits}</ul></div>
+</section>
+<section><h2>${esc(cfg.afterLabel)}</h2><p class="meta">${esc(cfg.after)} · ${afterRun.total} findings, web and mobile rules</p>
+ ${frame(afterShot)}
+ <div class="term notes"><div class="cmd"><b>$</b> slopdrop detect ${esc(cfg.after)}</div><div class="${afterRun.total ? "bad" : "good"}">${esc(summaryLine(afterRun))}</div><ul>${notes}</ul></div>
+</section>
+<p class="foot">${esc(cfg.footer)}</p>
+</body></html>`;
+}
+
+async function renderPage(browser, html, out, label) {
+  const tmp = mkdtempSync(join(tmpdir(), "slopdrop-page-"));
+  const file = join(tmp, "page.html");
+  writeFileSync(file, html);
+  await browser.open(pathToFileURL(file).href, 932, 600);
+  const height = await browser.evaluate("Math.ceil(document.documentElement.scrollHeight)");
+  await browser.open(pathToFileURL(file).href, 932, height);
+  const png = await browser.screenshot(932, height);
+  rmSync(tmp, { recursive: true, force: true });
+  writeFileSync(join(OUT, out), Buffer.from(png, "base64"));
+  console.log(`docs/assets/${out}  (${label})`);
+}
+
+async function renderBakery(browser) {
+  const cfg = BAKERY;
+  const beforeFile = join(ROOT, cfg.dir, cfg.before);
+  const afterFile = join(ROOT, cfg.dir, cfg.after);
+
+  await browser.open(pathToFileURL(beforeFile).href, DESKTOP.width, DESKTOP.height);
+  const markers = await browser.evaluate(DESKTOP_MARKER_JS(cfg.markers));
+  const beforeShot = await browser.screenshot(DESKTOP.width, DESKTOP.height);
+  await browser.open(pathToFileURL(afterFile).href, DESKTOP.width, DESKTOP.height);
+  const afterShot = await browser.screenshot(DESKTOP.width, DESKTOP.height);
+
+  const afterWeb = detectorRun(afterFile);
+  const afterMobile = scan([afterFile], { platform: "mobile", rules: detectableRules() });
+  if (afterWeb.total || afterMobile.findings.length) console.warn("warning: the treated bakery page has findings");
+
+  const html = desktopPage({ cfg, beforeRun: detectorRun(beforeFile), afterRun: afterWeb, beforeShot, afterShot, markers });
+  await renderPage(browser, html, cfg.out, "bakery");
+}
+
 const args = process.argv.slice(2);
-const only = args.includes("--lang") ? [args[args.indexOf("--lang") + 1]] : Object.keys(COPY);
-for (const lang of only) if (!COPY[lang]) throw new Error(`Unknown language ${lang}. Use ${Object.keys(COPY).join(", ")}.`);
+const pick = (flag) => (args.includes(flag) ? args[args.indexOf(flag) + 1] : null);
+const onlyJob = pick("--only");
+const langs = pick("--lang") ? [pick("--lang")] : Object.keys(COPY);
+for (const lang of langs) if (!COPY[lang]) throw new Error(`Unknown language ${lang}. Use ${Object.keys(COPY).join(", ")}.`);
+if (onlyJob && !["bank", "bakery"].includes(onlyJob)) throw new Error("--only takes bank or bakery");
 
 const browser = await launch();
 try {
-  for (const lang of only) await render(browser, lang);
+  if (!onlyJob || onlyJob === "bank") for (const lang of langs) await render(browser, lang);
+  if (!onlyJob || onlyJob === "bakery") await renderBakery(browser);
 } finally {
   await browser.close();
 }

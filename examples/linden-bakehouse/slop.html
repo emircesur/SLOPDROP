@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linden ✨ Elevate Your Mornings</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,"Segoe UI",system-ui,sans-serif;color:#1e1b2e;background:#faf8ff;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;border:0;cursor:pointer}
+.blobs{position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 12% 18%,#c4b5fd 0,transparent 32%),radial-gradient(circle at 88% 8%,#f9a8d4 0,transparent 30%),radial-gradient(circle at 70% 80%,#a5b4fc 0,transparent 35%)}
+.nav{position:sticky;top:18px;z-index:5;margin:18px auto 0;width:min(1120px,calc(100% - 48px));display:flex;align-items:center;justify-content:space-between;padding:12px 14px 12px 20px;border-radius:24px;background:rgba(255,255,255,.55);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.7);box-shadow:0 8px 32px rgba(76,29,149,.08)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.4px}
+.logo-tile{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#7c3aed,#db2777);box-shadow:0 0 24px #a855f780;font-size:20px}
+.links{display:flex;gap:30px;font-size:15px;font-weight:500;color:#4c4766}
+.cta{padding:12px 22px;border-radius:999px;color:#fff;font-weight:600;background:linear-gradient(90deg,#7c3aed,#c026d3,#db2777);box-shadow:0 0 28px #c026d380;transition:all .3s ease}
+.cta:hover{transform:scale(1.05)}
+.hero{width:min(1120px,calc(100% - 48px));margin:64px auto 0;display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.6);backdrop-filter:blur(10px);border:1px solid #e9d5ff;font-size:12px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.14em}
+h1{font-size:64px;line-height:1.04;letter-spacing:-2.4px;margin:22px 0 20px;font-weight:800}
+.shine{background:linear-gradient(90deg,#7c3aed,#db2777,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{font-size:19px;line-height:1.6;color:#5b5675;max-width:520px;margin:0 0 32px}
+.actions{display:flex;gap:14px;align-items:center}
+.ghost{padding:12px 22px;border-radius:999px;background:rgba(255,255,255,.6);border:1px solid #ddd6fe;font-weight:600;color:#4c1d95;transition:all .3s ease}
+.proof{display:flex;align-items:center;gap:14px;margin-top:36px;font-size:14px;color:#5b5675}
+.avatars{display:flex}.avatars span{width:34px;height:34px;border-radius:50%;border:2px solid #fff;margin-left:-10px;background:linear-gradient(135deg,#c4b5fd,#f9a8d4)}
+.avatars span:first-child{margin-left:0}
+.stars{color:#f59e0b;letter-spacing:2px}
+.panel{position:relative;padding:28px;border-radius:28px;background:rgba(255,255,255,.5);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.8);box-shadow:0 0 60px #a855f74d}
+.panel h3{margin:0 0 4px;font-size:18px}.panel .sub{margin:0 0 22px;font-size:13px;color:#8b87a3}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat{padding:18px;border-radius:20px;background:#ffffffb3;border:1px solid #f3e8ff;transition:all .3s ease}
+.stat:hover{transform:scale(1.04)}
+.icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#f3e8ff;font-size:22px;margin-bottom:14px}
+.stat strong{display:block;font-size:30px;letter-spacing:-1px}
+.stat small{font-size:13px;color:#6b6785}
+.spark{height:64px;margin-top:18px;border-radius:18px;background:linear-gradient(180deg,#ede9fe,#fce7f3)}
+.features{width:min(1120px,calc(100% - 48px));margin:96px auto 0;text-align:center}
+.features h2{font-size:42px;letter-spacing:-1.4px;margin:12px 0 40px}
+.bento{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:left}
+.card{padding:28px;border-radius:24px;background:rgba(255,255,255,.6);border:1px solid #ede9fe;transition:all .3s ease}
+.card:hover{transform:scale(1.03)}
+.card h3{margin:0 0 8px;font-size:20px}.card p{margin:0;color:#5b5675;line-height:1.55}
+.quote{margin:20px 0 0;padding:18px;border-radius:18px;background:#faf5ff;font-size:14px;color:#5b5675}
+.fine{color:#a8a3bd;background:#ffffff;font-size:10px;padding:24px;text-align:center}
+.ask{position:fixed;right:28px;bottom:28px;padding:14px 20px;border-radius:999px;color:#fff;font-weight:600;background:linear-gradient(135deg,#7c3aed,#db2777);box-shadow:0 0 30px #9333ea99}
+</style>
+</head>
+<body>
+<div class="blobs" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="logo" href="#"><span class="logo-tile">🥐</span>Linden</a>
+  <nav class="links"><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#testimonials">Testimonials</a><a href="#faq">FAQ</a></nav>
+  <button class="cta">Get Started</button>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <span class="eyebrow">✨ AI-powered freshness</span>
+      <h1>Elevate your mornings with <span class="shine">artisanal perfection</span></h1>
+      <p class="lede">Experience seamless, effortless ordering. Unlock the full potential of your breakfast with our revolutionary bread platform.</p>
+      <div class="actions"><button class="cta">Get Started →</button><button class="ghost">Learn More</button></div>
+      <div class="proof"><span class="avatars"><span></span><span></span><span></span><span></span></span><span>Trusted by 10,000+ customers<br><span class="stars">★★★★★</span> 4.9 from real foodies!</span></div>
+    </div>
+    <div class="panel">
+      <h3>Today's Impact 🚀</h3>
+      <p class="sub">Live from our ovens!</p>
+      <div class="stats">
+        <div class="stat"><span class="icon">🥖</span><strong>2,500+</strong><small>Loaves baked</small></div>
+        <div class="stat"><span class="icon">💜</span><strong>98%</strong><small>Happy customers</small></div>
+        <div class="stat"><span class="icon">⚡</span><strong>3x faster</strong><small>Than other bakeries</small></div>
+        <div class="stat"><span class="icon">🌱</span><strong>100%</strong><small>Love in every bite</small></div>
+      </div>
+      <div class="spark"></div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <span class="eyebrow">Why choose us</span>
+    <h2>Bread, <span class="shine">reimagined</span> for the modern era!</h2>
+    <div class="bento">
+      <article class="card"><span class="icon">🔥</span><h3>Baked with passion</h3><p>Every loaf is a game-changer, crafted to empower you to start your day right.</p></article>
+      <article class="card"><span class="icon">🤖</span><h3>Smart ordering</h3><p>Our AI learns your cravings so you never have to think about bread again.</p></article>
+      <article class="card" id="testimonials"><span class="icon">⭐</span><h3>Loved by everyone</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p><p class="quote">"Best bread ever! Life-changing." Jane Doe, CEO at Acme Inc.</p></article>
+    </div>
+  </section>
+</main>
+
+<footer class="fine">© 2026 Linden. All rights reserved. Made with 💜 and AI.</footer>
+<button class="ask">✨ Ask AI</button>
+</body>
+</html>
