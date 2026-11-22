@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f5ee">
+<title>Shore Bank · Hesap defteri</title>
+<style>
+:root{
+ color-scheme:light dark;
+ --paper:#f7f5ee;--outer:#e9e6dc;--ink:#192730;--muted:#535e60;--line:#c9c8bd;
+ --brand:#173d82;--button-text:#fff;--positive:#176047;--error:#a32f24;--wash:#e7ecef;
+ --mono:Consolas,"SFMono-Regular","Liberation Mono",monospace;
+ --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media(prefers-color-scheme:dark){
+ :root{--paper:#172023;--outer:#101619;--ink:#f1efe4;--muted:#b1bcbb;--line:#465458;--brand:#a9c5ff;--button-text:#122442;--positive:#8ed4b5;--error:#ffb4a8;--wash:#28383c}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--outer);color:var(--ink);font:1rem/1.4 var(--sans)}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--brand);text-decoration:none}button{cursor:pointer;border:0;padding:0;background:transparent}
+button,a,input,select{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+button:active,a:active{opacity:.7}
+@media(hover:hover){button:hover,a:hover{text-decoration:underline;text-underline-offset:3px}}
+h1,h2,h3,p,dl,dd,ul,figure{margin:0}
+.shell{background:var(--paper);max-width:448px;min-height:100dvh;margin:auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 20px;border-bottom:1px solid var(--line)}
+.brand,.mast-tools,.account-link,.minor-link,.summary-line,.navlink,.action,.plain-action,.section-head,.inline,.dlg-head{display:flex;align-items:center}
+.brand{gap:9px;color:var(--brand);font-size:1.38rem;font-weight:700;letter-spacing:-.055em}
+.brand svg{width:32px;height:28px}
+.icon{display:block;width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mast-tools{gap:2px}.icon-button{display:grid;place-items:center;width:46px;min-height:46px;color:var(--ink)}
+.profile{font:600 .8rem var(--mono);border:1px solid var(--line);border-radius:50%;width:32px;height:32px;display:grid;place-items:center}
+main{padding:21px 23px 12px;flex:1;min-width:0}
+.summary-line,.section-head,.dlg-head{justify-content:space-between;gap:8px}
+.account-link{gap:6px;min-height:44px;font-size:.93rem;font-weight:600}
+.account-link .icon{width:14px;height:14px}
+.account-link span{font:normal .82rem var(--mono);color:var(--muted);margin-left:3px}
+.summary-line{border-bottom:1px solid var(--line)}
+.balance-readout{padding-top:19px}.balance-readout h1{font-size:.92rem;color:var(--muted);font-weight:500}
+.value{display:flex;align-items:baseline;flex-wrap:wrap;font-family:var(--mono);font-variant-numeric:tabular-nums;line-height:1.14;letter-spacing:-.075em;font-size:clamp(2.95rem,12.3vw,3.68rem);margin:2px 0 7px}
+.value .cents{font-size:.65em;letter-spacing:-.06em}.value .currency{font-size:.46em;margin-left:8px;letter-spacing:0}
+.balance-figure{display:block;width:100%;text-align:left;padding:6px 0 15px;color:var(--brand)}
+.figure-caption,.chart-period{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.figure-caption{font-size:.79rem;color:var(--muted)}
+.figure-caption .range{font-family:var(--mono);font-size:.78rem}
+.chart{width:100%;height:62px;display:block;margin:8px 0 1px}
+.chart-period{font:normal .74rem var(--mono);color:var(--muted)}
+.mask-note{color:var(--muted);padding:20px 0}
+.ledger-block{margin-top:14px;border-top:2px solid var(--ink)}
+.section-head{padding:9px 0 5px}.section-head h2{font-size:1.35rem;font-weight:620;letter-spacing:-.045em}
+.minor-link{gap:5px;min-height:44px;font-size:.83rem;font-weight:600}.minor-link .icon{width:15px;height:15px}
+.entry{width:100%;display:grid;grid-template-columns:35px minmax(0,1fr) auto;align-items:center;column-gap:12px;padding:10px 0;text-align:left;border-top:1px solid var(--line);min-height:61px}
+.tx-date{display:grid;gap:0;font:normal 1.05rem/1.08 var(--mono);color:var(--ink);border-right:1px solid var(--line)}
+.tx-date small{font-size:.7rem;color:var(--muted);margin-top:3px}
+.tx-desc{display:grid;gap:2px;min-width:0}.tx-desc strong{font-size:.96rem;font-weight:620;line-height:1.28}.tx-desc small{font-size:.78rem;color:var(--muted)}
+.tx-amount{font:normal .95rem var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.045em;white-space:nowrap}
+.credit{color:var(--positive)}
+.foot{position:sticky;bottom:0;z-index:1;background:var(--paper);padding-bottom:env(safe-area-inset-bottom)}
+.action-bar{border-top:1px solid var(--line);display:grid;grid-template-columns:1.7fr 1fr 1fr;align-items:center;gap:8px;padding:11px 18px}
+.action,.plain-action{justify-content:center;gap:7px;padding:8px;min-height:46px;font-size:.89rem;font-weight:600}
+.action{background:var(--brand);color:var(--button-text);border-radius:4px}.action .icon{height:18px;width:18px}
+.plain-action{font-size:.84rem;color:var(--brand);white-space:nowrap}
+nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);padding:0 8px}
+.navlink{min-width:0;justify-content:center;flex-direction:column;gap:3px;text-align:center;min-height:58px;color:var(--muted);font-size:.69rem;position:relative;line-height:1.3}
+.navlink[aria-current]{color:var(--brand);font-weight:650}
+.navlink[aria-current]::before{content:"";position:absolute;top:-1px;width:31px;height:3px;background:var(--brand)}
+.navlink .icon{width:20px;height:20px}
+.view-title{font-size:1.65rem;line-height:1.25;letter-spacing:-.045em;margin:4px 0 18px}
+.detail-line{padding:14px 0;border-bottom:1px solid var(--line);display:grid;gap:3px}
+.detail-line dt,.help{font-size:.85rem;color:var(--muted)}.detail-line dd{font-weight:600;overflow-wrap:anywhere}
+.search,.field{display:grid;gap:6px;font-size:.9rem;margin:12px 0}
+input,select{background:var(--paper);width:100%;border:1px solid var(--muted);border-radius:3px;padding:10px 12px;font-size:1rem;min-height:46px}
+.no-results{padding:20px 0;color:var(--muted)}
+dialog{color:var(--ink);background:var(--paper);width:min(448px,100%);max-width:100%;margin:auto auto 0;max-height:88dvh;overflow:auto;border:0;border-top:2px solid var(--ink);padding:12px 24px max(24px,env(safe-area-inset-bottom))}
+dialog::backdrop{background:rgb(15 25 28 / 48%)}.dlg-head{border-bottom:1px solid var(--line);margin-bottom:12px}
+.dlg-head h2{font-size:1.3rem;letter-spacing:-.04em}.wide{width:100%;margin-top:16px}
+.error{font-size:.85rem;color:var(--error);font-weight:600}
+.sample{color:var(--muted);font-size:.85rem;margin-top:12px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:360px){main{padding-inline:16px}.entry{gap:8px;grid-template-columns:30px minmax(0,1fr) auto}.tx-amount{font-size:.85rem}.action-bar{padding-inline:12px;gap:2px}.brand{font-size:1.25rem}}
+@media(max-height:700px){.foot{position:static}}
+@media(min-width:600px){.shell{border-inline:1px solid var(--line)}}
+.shell{container-type:inline-size}
+@container (max-width:19rem){
+ .entry{grid-template-columns:2.6rem minmax(0,1fr);row-gap:5px}
+ .tx-date{grid-row:span 2}
+ .tx-amount{grid-column:2}.tx-desc{overflow-wrap:anywhere}
+ .action-bar{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .action-bar .action{grid-column:1/-1}
+ .foot{position:static}
+ nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .navlink{padding:8px 0}
+ .figure-caption,.section-head,.summary-line{flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+.amount .unit,.value .currency{margin-left:0;margin-right:.08em}
+</style>
+</head>
+<body>
+<div class="shell">
+ <header>
+  <div class="brand"><svg viewBox="0 0 30 26" fill="none" aria-hidden="true"><path d="M3 15C8 15 9 6 16 6c5 0 7 3 11 1M3 21c7 0 8-9 15-9 4 0 6 2 9 1" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>Shore Bank</div>
+  <div class="mast-tools"><button class="icon-button" data-sheet="notice" aria-label="Notifications" data-icon="bell"></button><button class="icon-button" data-sheet="profile" aria-label="Dana Ellis, profile"><span class="profile">DA</span></button></div>
+ </header>
+ <main id="content" tabindex="-1"></main>
+ <footer class="foot">
+  <div class="action-bar" aria-label="Quick actions"><button class="action" data-sheet="send">Send money <i data-icon="send"></i></button><button class="plain-action" data-sheet="request">Request</button><button class="plain-action" data-sheet="pay">Pay bills</button></div>
+  <nav aria-label="Main menu"><a class="navlink" href="#ana"><i data-icon="home"></i>Home</a><a class="navlink" href="#hesaplar"><i data-icon="book"></i>Accounts</a><a class="navlink" href="#kartlar"><i data-icon="card"></i>Cards</a><a class="navlink" href="#hareketler"><i data-icon="list"></i>Activity</a></nav>
+ </footer>
+</div>
+<dialog aria-labelledby="dialog-title" id="sheet"><div class="dlg-head"><h2 id="dialog-title"></h2><button type="button" class="icon-button" aria-label="Close" data-close data-icon="close"></button></div><div id="dialog-body"></div></dialog>
+<script>
+const icons={
+ bell:'M5 17h14l-2-3V9a5 5 0 0 0-10 0v5l-2 3Zm5 3h4',
+ home:'m3 10 9-7 9 7v10h-6v-6H9v6H3z',book:'M6 3h14v17H6a2.5 2.5 0 0 1-2.5-2.5v-12A2.5 2.5 0 0 1 6 3Zm-2.5 14.5A2.5 2.5 0 0 1 6 15h14M8 7h7',card:'M3 5h18v14H3zM3 10h18M7 15h4',list:'M7 5h14M7 12h14M7 19h14M3 5h.1M3 12h.1M3 19h.1',send:'M5 19 19 5M8 5h11v11',right:'m9 5 7 7-7 7',close:'m6 6 12 12M18 6 6 18',
+ eye:'M2 12s3.4-6 10-6 10 6 10 6-3.4 6-10 6S2 12 2 12Zm13 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
+ off:'m3 3 18 18M4 8l-2 4s3.4 6 10 6c2.2 0 4-.6 5.3-1.3M9 6.4c1-.3 2-.4 3-.4 6.6 0 10 6 10 6l-2 2.6'
+};
+function icon(key){return '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="'+icons[key]+'"/></svg>'}
+document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
+const records=[
+ {day:21,time:'10:42',name:'Corner Café',kind:'Café',delta:-18500},
+ {day:20,time:'09:00',name:'Salary',kind:'Incoming transfer',delta:5240000},
+ {day:19,time:'18:16',name:'Fresh Market',kind:'Groceries',delta:-76435},
+ {day:18,time:'08:30',name:'Spotify Premium',kind:'Subscription',delta:-9900},
+ {day:17,time:'08:12',name:'City Metro',kind:'Transit',delta:-4000}
+];
+const closing=8475060;
+const money=new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt=cents=>money.format(cents/100);
+const signed=cents=>(cents>0?'+':'−')+'$'+fmt(Math.abs(cents))+'';
+const dailyBalances=[];let closingOnDay=closing;
+for(const item of records){dailyBalances.unshift({day:item.day,value:closingOnDay});closingOnDay-=item.delta}
+const content=document.querySelector('main'),sheet=document.querySelector('dialog'),dialogBody=document.querySelector('#dialog-body');
+let masked=false;
+const balanceText=()=>masked?'••••••':'$'+fmt(closing)+'';
+function detail(label,value){return '<div class="detail-line"><dt>'+label+'</dt><dd>'+value+'</dd></div>'}
+function ledger(list){
+ if(!list.length)return '<p class="no-results" role="status">No matching activity. Search for a merchant or a type.</p>';
+ return list.map(x=>'<button class="entry" data-index="'+records.indexOf(x)+'"><time class="tx-date" datetime="2026-11-'+x.day+'">'+x.day+'<small>Nov</small></time><span class="tx-desc"><strong>'+x.name+'</strong><small>'+x.kind+' · '+x.time+'</small></span><span class="tx-amount '+(x.delta>0?'credit':'')+'">'+signed(x.delta)+'</span></button>').join('');
+}
+function chart(){
+ if(masked)return '<p class="mask-note">Balance chart hidden.</p>';
+ const pts=dailyBalances.map((p,i)=>({x:5+i*86,y:56-(p.value-3000000)/6000000*51}));
+ const line=pts.reduce((s,p,i)=>i?s+' H'+p.x+' V'+p.y:'M'+p.x+' '+p.y,'');
+ const dots=pts.map(p=>'<circle cx="'+p.x+'" cy="'+p.y+'" r="2.5" fill="var(--paper)" stroke="currentColor" stroke-width="1.6"/>').join('');
+ return '<button class="balance-figure" data-sheet="history" aria-label="Review end-of-day balances for Nov 17–21"><span class="figure-caption"><span>End-of-day balance</span><span class="range">Nov 17–21</span></span><svg aria-hidden="true" class="chart" viewBox="0 0 354 62" preserveAspectRatio="none"><defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M-1 1 1-1M0 5 5 0M4 6 6 4" stroke="currentColor" stroke-width=".65" opacity=".25"/></pattern></defs><path d="M4 10H350 M4 54H350" stroke="var(--line)" stroke-dasharray="2 4" fill="none"/><path d="'+line+' V58 H5 Z" fill="url(#hatch)"/><path d="'+line+'" stroke="currentColor" stroke-width="2" fill="none"/>'+dots+'<text x="'+(pts[3].x-7)+'" text-anchor="end" y="22" fill="currentColor" font-family="var(--mono)" font-size="11">Nov 20</text></svg><span class="chart-period"><span>'+'$'+fmt(dailyBalances[0].value)+'</span><span>'+'$'+fmt(closing)+'</span></span></button>';
+}
+function home(){
+ const parts=fmt(closing).split('.');
+ return '<div class="summary-line"><button class="account-link" data-sheet="account">Checking <span>•••• 4821</span>'+icon('right')+'</button><button class="icon-button" id="privacy" aria-pressed="'+masked+'" aria-label="'+(masked?'Show':'Hide')+' balance">'+icon(masked?'off':'eye')+'</button></div>'+
+ '<section class="balance-readout"><h1>Available balance</h1><div class="value" aria-label="'+balanceText()+'">'+(masked?'••••••':'<span class="currency">$</span>'+parts[0]+'<span class="cents">.'+parts[1]+'</span>')+'</div>'+chart()+'</section>'+
+ '<section class="ledger-block"><div class="section-head"><h2>Recent activity</h2><a class="minor-link" href="#hareketler">See all '+icon('right')+'</a></div>'+ledger(records.slice(0,4))+'</section>';
+}
+function route(){
+ const page=location.hash.slice(1)||'ana';
+ const pages={
+ ana:home,
+ hesaplar:()=>'<h1 class="view-title">Accounts</h1><dl>'+detail('Account','Checking · 4821')+detail('Available balance',balanceText())+'</dl><button class="minor-link" data-sheet="account">Account details '+icon('right')+'</button>',
+ kartlar:()=>'<h1 class="view-title">My cards</h1><dl>'+detail('Card','Shore Bank debit card')+detail('Card number','•••• •••• •••• 4821')+detail('Linked account','Checking · 4821')+detail('Status','Active')+'</dl>',
+ hareketler:()=>'<h1 class="view-title">Account activity</h1><label class="search">Search activity<input type="search" id="filter" placeholder="Merchant or type"></label><div id="results">'+ledger(records)+'</div>'
+ };
+ const current=Object.hasOwn(pages,page)?page:'ana';
+ content.innerHTML=pages[current]();
+ document.querySelectorAll('.navlink').forEach(link=>{if(link.hash==='#'+current)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});
+ document.title='Shore Bank · '+document.querySelector('.navlink[aria-current]').textContent;
+}
+function openSheet(title,html){
+ document.querySelector('#dialog-title').textContent=title;dialogBody.innerHTML=html;
+ if(!sheet.open)sheet.showModal();sheet.scrollTop=0;
+}
+const flows={send:['Send money','Recipient'],request:['Request','From'],pay:['Pay bills','Bill account number']};
+function showFlow(key){
+ const [title,label]=flows[key];
+ openSheet(title,'<form novalidate><label class="field">'+label+'<input name="recipient" maxlength="80" required></label><label class="field">Amount ($)<input name="amount" inputmode="decimal" placeholder="0.00" required></label><p class="error" role="alert"></p><button class="action wide">Preview</button></form>');
+ const form=dialogBody.querySelector('form');
+ form.onsubmit=e=>{
+  e.preventDefault();
+  const who=form.elements.recipient.value.trim(),raw=form.elements.amount.value.trim();
+  const validAmount=/^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d{1,2})?$/.test(raw);
+  const amount=validAmount?Math.round(Number(raw.replaceAll(',',''))*100):0;
+  const badBalance=key!=='request'&&amount>closing;
+  const issue=!who?'Enter the '+label.toLowerCase()+'.':!Number.isSafeInteger(amount)||amount<=0?'Enter an amount above zero, for example 250.50.':badBalance?'That is more than your available balance. Enter a smaller amount.':'';
+  if(issue){form.querySelector('.error').textContent=issue;(!who?form.elements.recipient:form.elements.amount).focus();return}
+  openSheet(title,'<p class="help">Preview</p><dl>'+detail(label,'<span id="recipient-value"></span>')+detail('Amount','$'+fmt(amount)+'')+'</dl><p class="sample">This preview uses sample account data.</p><button class="action wide" data-close>Close</button>');
+  document.querySelector('#recipient-value').textContent=who;
+ };
+}
+function showInfo(key){
+ if(Object.hasOwn(flows,key))return showFlow(key);
+ const details={
+ account:['Account details',detail('Account holder','Dana Ellis')+detail('Account','Checking · 4821')+detail('Available balance',balanceText())],
+ profile:['Profile',detail('Full name','Dana Ellis')+detail('Account type','Sample customer account')],
+ notice:['Notifications',detail('Nov 20, 2026 · 09:00','Your salary of $'+fmt(records[1].delta)+' arrived in Checking.')],
+ history:['End-of-day balances',dailyBalances.map(x=>detail('Nov '+x.day+', 2026',masked?'••••••':'$'+fmt(x.value)+'')).join('')]
+ };
+ if(details[key])openSheet(details[key][0],'<dl>'+details[key][1]+'</dl>');
+}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.hasAttribute('data-close'))return sheet.close();
+ if(b.id==='privacy'){masked=!masked;route();document.querySelector('#privacy').focus();return}
+ if(b.dataset.sheet)return showInfo(b.dataset.sheet);
+ if(b.hasAttribute('data-index')){const tx=records[+b.dataset.index];openSheet(tx.name,'<dl>'+detail('Amount',signed(tx.delta))+detail('Type',tx.kind)+detail('Date','Nov '+tx.day+', 2026 · '+tx.time)+detail('Account','Checking · 4821')+'</dl>')}
+});
+document.addEventListener('input',e=>{
+ if(e.target.id!=='filter')return;
+ const query=e.target.value.trim().toLocaleLowerCase('en');
+ document.querySelector('#results').innerHTML=ledger(records.filter(tx=>(tx.name+' '+tx.kind).toLocaleLowerCase('en').includes(query)));
+});
+sheet.addEventListener('click',e=>{if(e.target===sheet){const r=sheet.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)sheet.close()}});
+window.addEventListener('hashchange',()=>{if(sheet.open)sheet.close();route();window.scrollTo(0,0);content.focus({preventScroll:true})});
+route();
+</script>
+</body>
+</html>

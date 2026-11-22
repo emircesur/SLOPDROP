@@ -2,14 +2,16 @@
 
 **Stop AI slop in your UI/UX.** Mobile, web, spatial. Copy included.
 
-![The same Kıyı Bank home screen before and after SLOPDROP: 16 detector findings on the neon version, none on the treated one](docs/assets/before-after.png)
+![The same bank home screen before and after SLOPDROP: 16 detector findings on the neon version, none on the treated one](docs/assets/before-after.en.png)
+
+<sub>Türkçe: [önce / sonra görseli](docs/assets/before-after.tr.png) · [tasarım notları](DESIGN.md) · [saha testi](examples/field-test-2.md)</sub>
 
 Slop is not ugly. Slop is generic: the purple gradient, the white card with a gray border, the sparkle where search used to be, "Oops! Something went wrong", "Trusted by 10,000+ teams", a web page floating in a headset, a hero section inside a phone app.
 
 SLOPDROP is three things that share one brain:
 
 1. **A review skill for your coding agent.** `/slopdrop review`, `treat`, `scan`, `chart`, `follow-up`. It finds what users actually complain about before it comments on your palette, scores the screen out of 24, and fixes at the token and component level instead of repainting screens.
-2. **A deterministic detector.** 68 rules, 48 of them executed over SwiftUI, UIKit, Compose, Android XML, React Native, Expo, Flutter, Ionic, React, Next.js, Vue, Svelte, Astro, HTML/CSS, Tailwind, and the spatial stacks. No model, no network, no dependencies. Color-aware: it reads the hue of a gradient or a glow instead of guessing from its spelling. English and Turkish interface copy. Exit code `2` gates a pull request; `--format sarif` puts the hits in GitHub code scanning.
+2. **A deterministic detector.** 73 rules, 53 of them executed over SwiftUI, UIKit, Compose, Android XML, React Native, Expo, Flutter, Ionic, React, Next.js, Vue, Svelte, Astro, HTML/CSS, Tailwind, and the spatial stacks. No model, no network, no dependencies. Color-aware: it reads the hue of a gradient or a glow instead of guessing from its spelling, and computes WCAG contrast when a rule sets both text and background. English and Turkish interface copy. Exit code `2` gates a pull request; `--format sarif` puts the hits in GitHub code scanning.
 3. **A local-first project brain.** One SQLite database, exposed over MCP, shared by Claude Desktop, Google Antigravity, and OpenAI Codex (and anything else that speaks MCP). The chart, the findings, the visits, the waivers, and the design tokens stay in sync while three agents work on the same project.
 
 Read the thinking in [DESIGN.md](DESIGN.md) (Turkish) and the system map in [ARCHITECTURE.md](ARCHITECTURE.md).
@@ -51,6 +53,14 @@ npx slopdrop install --project        # commit the folder, the whole team gets i
 npx slopdrop install --dir path/to/skills
 ```
 
+## The picture at the top
+
+```bash
+npm run image        # rebuilds docs/assets/before-after.en.png and .tr.png
+```
+
+It drives a local Chrome at 412 × 856, runs the detector on the example screens for the counts, and places the markers from the page's own layout. Nothing in it is typed by hand except the five treatment notes. The screens are in [examples/kiyi-bank/](examples/kiyi-bank/) (Turkish) and [examples/kiyi-bank/en/](examples/kiyi-bank/en/) (English).
+
 ## Three agents, one project
 
 ```bash
@@ -81,6 +91,8 @@ A pattern can carry a color check, so `ui.slop-gradient` fires on `linear-gradie
 ```json
 { "re": "linear-gradient\([^;}\n]{0,400}", "colors": { "hues": [[238, 340]], "minSaturation": 0.25 } }
 ```
+
+`a11y.low-contrast` does the math the same way: when one CSS rule or inline style sets both `color` and `background` to literal colors, it computes the WCAG ratio and fires below 4.5:1 (3:1 for large text). Variables, gradients, and translucent colors are left to a human, because the detector cannot resolve them.
 
 In GitHub Actions:
 
@@ -119,6 +131,7 @@ docs/              deep dives: spatial, sync, data model, research, brand
 evals/             golden cases that keep the skill honest
 examples/          before/after screens, field tests, and a full treatment report
 plugins/           Claude plugin, Codex plugin, agent manifests
+scripts/           plugin packaging and the before/after picture
 ```
 
 ## Status

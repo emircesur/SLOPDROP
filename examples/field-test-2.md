@@ -68,7 +68,7 @@ Every item except the Android `<gradient>` form has a test in `packages/detect/t
 
 Same result on `--platform mobile`, except `ui.icon-tile`, which stays off on mobile because tinted tiles are a native settings-list convention there.
 
-Reviewed in context: 15 of 16 neon hits and 3 of 4 generic hits hold up. The one false positive in each file is the same kind: the brand mark is a tinted rounded square, and the rule's own fix says a tile is fine where the shape carries meaning, like an app icon. That is a judgment call, so the rule is marked heuristic (`~` in the text output).
+Reviewed in context: all 16 neon hits and 3 of 4 generic hits hold up. The generic false positive is the brand mark: a tinted rounded square, and the rule's own fix says a tile is fine where the shape carries meaning, like an app icon. That is a judgment call, so the rule is marked heuristic (`~` in the text output).
 
 Both treated screens stay at zero on web and mobile. CI now enforces that.
 
@@ -80,3 +80,40 @@ Both treated screens stay at zero on web and mobile. CI now enforces that.
 - Whether the spending chart is honest needs the data, not the code. The treated screen computes it from the same records; the detector cannot know that.
 
 These stay in `reference/tells.md` for the skill to judge with its eyes.
+
+## Round 2: five more rules, and the same screens in English
+
+The first round taught the detector colors. The second round makes it do the arithmetic a reviewer does by eye, and adds the screens in English so the test is not tied to one language.
+
+### New rules
+
+| Rule | What it reads |
+|---|---|
+| `a11y.low-contrast` | One CSS rule or inline style that sets both `color` and `background` to literal colors. It computes the WCAG ratio and fires below 4.5:1, or 3:1 when the same rule makes the text large (24px, or 18.66px bold). `var()`, gradients, and translucent colors are skipped: the detector cannot resolve them, so it does not guess. |
+| `a11y.tiny-text` | Text under 11px in `px`, `rem`, Tailwind `text-[…]`, React Native, Compose, or Flutter. 11px and up pass: iOS tab labels sit at 10 to 11 points, so the bar is set below the platforms' own minimum, not at a taste. |
+| `truth.placeholder-content` | Lorem ipsum, John Doe, Acme Inc., 123 Main St, and the Turkish John Doe, Ahmet Yılmaz. `you@example.com` as an input placeholder is fine and left alone. |
+| `ui.pillow-radius` | Four or more radii of 18px or more in one file (CSS, Tailwind `rounded-3xl`, React Native, Flutter, SwiftUI). Sheets and one hero surface are fine; every surface is the tell. |
+| `copy.exclamation` | Three or more interface strings ending in "!" in one file. |
+
+`copy.welcome-back` also learned "Hello, Dana" and "Hi, {name}", which the English generic screen exposed: it greets in the same place the Turkish one says "Merhaba, Deniz".
+
+The engine change behind `ui.pillow-radius`: per-file rules used to count matching *lines*. Minified CSS puts many rules on one line, so a file with ten large radii on two lines counted as two. Per-file rules now count every match.
+
+### Result
+
+The same numbers in both languages:
+
+| File | Turkish | English | Rules |
+|---|---:|---:|---|
+| `generic.html` | 6 | 6 | `ui.icon-tile` ×3, `ui.pillow-radius`, `copy.welcome-back`, `a11y.low-contrast` |
+| `treated.html` | 0 | 0 | |
+| `neon.html` | 16 | 16 | unchanged from round 1 |
+| `neon-treated.html` | 0 | 0 | |
+
+`ui.pillow-radius` on the generic screen is right: the balance card, the action strip, the transaction list, and the dialog are all 19 to 22px pillows.
+
+`a11y.low-contrast` on the generic screen is a false positive, and an instructive one. `.market{background:#fae7e4;color:#ba5147}` is 4.04:1, which fails for text. But that `color` paints an icon through `currentColor`, and icons need 3:1, which it passes. The detector cannot see what the color is used for. The hit stays a lead; the reviewer drops it in one look.
+
+Round 2 precision on the four befores, both languages: 40 of 44 hits hold up. The four that do not are the same two in each generic file: the brand mark as an icon tile, and this contrast pair.
+
+The English screens live in [`kiyi-bank/en/`](kiyi-bank/en/): Shore Bank, Dana Ellis, dollars, US dates. The README picture now comes from `scripts/before-after.mjs`, which renders both languages from these files and reads every count from the detector.
