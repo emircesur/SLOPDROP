@@ -184,22 +184,36 @@ test("Turkish copy with a cause and a next step is left alone", () => {
 
 // ---------- the Kıyı Bank field test ----------
 
-test("Kıyı Bank: the neon screen is caught, the treated screens are clean", () => {
-  const neon = scan([join(BANK, "neon.html")], { platform: "web", rules: RULES });
-  const ids = new Set(neon.findings.map((f) => f.rule));
-  for (const expected of ["ui.slop-gradient", "ui.glow-shadow", "ui.icon-tile", "ui.sparkle-icon", "copy.welcome-back"]) {
-    assert.ok(ids.has(expected), `expected ${expected}, got ${[...ids].join(", ")}`);
-  }
-  assert.ok(neon.findings.length >= 12, `neon: ${neon.findings.length} findings`);
-
-  const generic = scan([join(BANK, "generic.html")], { platform: "web", rules: RULES });
-  assert.ok(generic.findings.some((f) => f.rule === "ui.icon-tile"));
-
-  for (const name of ["treated.html", "neon-treated.html"]) {
-    for (const platform of ["web", "mobile"]) {
-      const result = scan([join(BANK, name)], { platform, rules: RULES });
-      assert.deepEqual(result.findings, [], `${name} on ${platform}`);
+for (const [lang, dir] of [["tr", BANK], ["en", join(BANK, "en")]]) {
+  test(`Kıyı Bank (${lang}): the befores are caught, the treated screens are clean`, () => {
+    const neon = scan([join(dir, "neon.html")], { platform: "web", rules: RULES });
+    const ids = new Set(neon.findings.map((f) => f.rule));
+    for (const expected of ["ui.slop-gradient", "ui.glow-shadow", "ui.icon-tile", "ui.sparkle-icon", "copy.welcome-back"]) {
+      assert.ok(ids.has(expected), `expected ${expected}, got ${[...ids].join(", ")}`);
     }
+    assert.equal(neon.findings.length, 16, `neon: ${neon.findings.length} findings`);
+
+    const generic = scan([join(dir, "generic.html")], { platform: "web", rules: RULES });
+    const genericIds = new Set(generic.findings.map((f) => f.rule));
+    for (const expected of ["ui.icon-tile", "ui.pillow-radius", "copy.welcome-back"]) {
+      assert.ok(genericIds.has(expected), `generic: expected ${expected}, got ${[...genericIds].join(", ")}`);
+    }
+
+    for (const name of ["treated.html", "neon-treated.html"]) {
+      for (const platform of ["web", "mobile"]) {
+        const result = scan([join(dir, name)], { platform, rules: RULES });
+        assert.deepEqual(result.findings, [], `${lang}/${name} on ${platform}`);
+      }
+    }
+  });
+}
+
+test("greetings with a name are caught in English and Turkish", () => {
+  for (const text of ["Good evening, Dana", "Hello, Dana", "Hi, {user.name}", "Welcome back!", "İyi akşamlar, Deniz", "Merhaba, Deniz", "Hoş geldin!"]) {
+    assert.ok(ruleIds(html(`<h1>${text}</h1>`)).includes("copy.welcome-back"), text);
+  }
+  for (const text of ["Hello world", "This is a high-yield account", "Hi there"]) {
+    assert.ok(!ruleIds(html(`<h1>${text}</h1>`)).includes("copy.welcome-back"), text);
   }
 });
 
@@ -229,7 +243,7 @@ test("--fail-on raises the bar for the exit code", async () => {
   try {
     const generic = join(BANK, "generic.html");
     assert.equal(main([generic, "--platform", "web"]), 2, "minor hits fail by default");
-    assert.equal(main([generic, "--platform", "web", "--fail-on", "noticeable"]), 0, "minor hits pass the noticeable bar");
+    assert.equal(main([generic, "--platform", "web", "--fail-on", "critical"]), 0, "no critical hits, so the build passes");
     assert.equal(main([join(BANK, "neon.html"), "--platform", "web", "--fail-on", "noticeable"]), 2);
     assert.equal(main([generic, "--format", "sarif"]), 2);
   } finally {
@@ -244,3 +258,55 @@ test("--fail-on raises the bar for the exit code", async () => {
     console.error = error;
   }
 });
+
+// ---------- contrast, tiny text, placeholders, radius, exclamation ----------
+
+test("contrast is computed from the colors in one rule", async () => {
+  const { contrastRatio, parseSolid } = await import("../src/color.mjs");
+  assert.equal(Math.round(contrastRatio(parseSolid("#000"), parseSolid("#fff"))), 21);
+  assert.ok(ruleIds(css(".hint{color:#999;background:#fff}")).includes("a11y.low-contrast"));
+  assert.ok(ruleIds(css(".cta{color:#fff;background-color:#7cedd4}")).includes("a11y.low-contrast"));
+  assert.ok(ruleIds(html('<p style={{ color: "#aaa", backgroundColor: "white" }}>x</p>')).includes("a11y.low-contrast"));
+  // Passing pairs, large text at 3:1, and pairs the detector cannot resolve stay quiet.
+  assert.ok(!ruleIds(css(".ok{color:#767676;background:#fff}")).includes("a11y.low-contrast"));
+  assert.ok(!ruleIds(css(".big{color:#949494;background:#fff;font-size:28px}")).includes("a11y.low-contrast"));
+  assert.ok(!ruleIds(css(".v{color:var(--ink);background:#fff}")).includes("a11y.low-contrast"));
+  assert.ok(!ruleIds(css(".g{color:#eee;background:linear-gradient(#fff,#eee)}")).includes("a11y.low-contrast"));
+  assert.ok(!ruleIds(css(".a{color:#eeeeee80;background:#fff}")).includes("a11y.low-contrast"), "translucent text is not judged");
+});
+
+test("tiny text is under 11px in any unit", () => {
+  for (const source of [".a{font-size:10px}", ".a{font-size:.6rem}", ".a{font-size:9.5px}"]) {
+    assert.ok(ruleIds(css(source)).includes("a11y.tiny-text"), source);
+  }
+  assert.ok(ruleIds(scanSource("const s = { fontSize: 9 };", "a.tsx", { stack: "js", kind: "mobile", rules: RULES })).includes("a11y.tiny-text"));
+  assert.ok(ruleIds(html('<span class="text-[10px]">x</span>')).includes("a11y.tiny-text"));
+  for (const source of [".a{font-size:11px}", ".a{font-size:.69rem}", ".a{font-size:100px}", ".a{font-size:0}", ".a{font-size:1.6rem}"]) {
+    assert.ok(!ruleIds(css(source)).includes("a11y.tiny-text"), source);
+  }
+});
+
+const lines = (...parts) => parts.join("\n");
+
+test("placeholder content is caught", () => {
+  const ids = ruleIds(html(lines("<p>Lorem ipsum dolor sit amet</p>", "<p>John Doe</p>", "<p>Ahmet Yılmaz</p>", "<p>Acme Inc.</p>")));
+  assert.equal(ids.filter((id) => id === "truth.placeholder-content").length, 4);
+  assert.ok(!ruleIds(html('<input placeholder="you@example.com">')).includes("truth.placeholder-content"));
+});
+
+test("pillow radius needs four large radii in a file", () => {
+  const three = lines(".a{border-radius:22px}.b{border-radius:19px}", ".c{border-radius:24px}");
+  assert.ok(!ruleIds(css(three)).includes("ui.pillow-radius"));
+  const four = lines(three, ".d{border-radius:20px}");
+  assert.equal(ruleIds(css(four)).filter((id) => id === "ui.pillow-radius").length, 1);
+  const calm = lines(".a{border-radius:12px}.b{border-radius:12px}", ".c{border-radius:50%}", ".d{border-radius:16px}", ".e{border-radius:8px}");
+  assert.ok(!ruleIds(css(calm)).includes("ui.pillow-radius"));
+});
+
+test("exclamation marks are counted per file", () => {
+  assert.ok(!ruleIds(html(lines("<p>Saved!</p>", "<p>Done.</p>"))).includes("copy.exclamation"));
+  const loud = lines("<p>Saved!</p>", "<p>You're all set!</p>", "<p>Great job!</p>");
+  assert.equal(ruleIds(html(loud)).filter((id) => id === "copy.exclamation").length, 1);
+  assert.ok(!ruleIds(html(lines("<p>{a !== b}</p>", "<p>{!x}</p>", "<p>{!y}</p>"))).includes("copy.exclamation"));
+});
+

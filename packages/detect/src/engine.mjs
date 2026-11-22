@@ -5,7 +5,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { compilePattern, detectableRules } from "../../rules/index.mjs";
 import { fingerprint, sortFindings } from "../../core/index.mjs";
-import { textHasColor } from "./color.mjs";
+import { failsContrast, textHasColor } from "./color.mjs";
 
 export const VERSION = 1;
 
@@ -263,13 +263,19 @@ export function scanSource(text, file, options = {}) {
 
     const seenLines = new Set();
     const hits = [];
+    let sameLineHits = 0;
 
     for (const pattern of rule.patterns) {
       const regex = compilePattern(pattern, rule.ignoreCase ? "i" : "");
       for (const match of code.matchAll(regex)) {
         const line = lineAt(starts, match.index);
-        if (seenLines.has(line)) continue;
+        if (seenLines.has(line)) {
+          // A per-file rule counts every match, so minified CSS is not undercounted.
+          if (rule.perFile && (!pattern.colors || textHasColor(match[0], pattern.colors))) sameLineHits += 1;
+          continue;
+        }
         if (pattern.colors && !textHasColor(match[0], pattern.colors)) continue;
+        if (pattern.contrast && !failsContrast(match[0], pattern.contrast)) continue;
         if (ignoredByComment(lines, line, rule.id)) continue;
         if (rule.excludePatterns) {
           const lineText = lines[line - 1] ?? "";
@@ -281,7 +287,7 @@ export function scanSource(text, file, options = {}) {
     }
 
     if (hits.length === 0) continue;
-    if (rule.perFile && hits.length < (rule.minMatches ?? 1)) continue;
+    if (rule.perFile && hits.length + sameLineHits < (rule.minMatches ?? 1)) continue;
 
     const selected = rule.perFile ? [hits.sort((a, b) => a.index - b.index)[0]] : hits;
 

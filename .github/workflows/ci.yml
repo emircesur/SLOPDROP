@@ -30,8 +30,9 @@ jobs:
         run: node packages/detect/bin/slopdrop-detect.mjs packages/detect/test/fixtures/clean --platform web
       - name: Treated example screens are clean on web and mobile
         run: |
-          node packages/detect/bin/slopdrop-detect.mjs examples/kiyi-bank/treated.html examples/kiyi-bank/neon-treated.html --platform web
-          node packages/detect/bin/slopdrop-detect.mjs examples/kiyi-bank/treated.html examples/kiyi-bank/neon-treated.html --platform mobile
+          for platform in web mobile; do
+            node packages/detect/bin/slopdrop-detect.mjs               examples/kiyi-bank/treated.html examples/kiyi-bank/neon-treated.html               examples/kiyi-bank/en/treated.html examples/kiyi-bank/en/neon-treated.html               --platform "$platform"
+          done
       - name: SARIF output parses
         run: node packages/detect/bin/slopdrop-detect.mjs examples/kiyi-bank --platform web --format sarif --fail-on critical | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);if(j.version!=='2.1.0'||!j.runs[0].results.length)process.exit(1)})"
       - name: Detector exits 2 on the slop fixture

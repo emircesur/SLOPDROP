@@ -51,6 +51,35 @@
         ">\\s*[+↑↓]?\\d{1,3}(?:[.,]\\d{1,3})*\\s*(?:%|[kKM]\\+?|\\+)\\s*<",
         "(?:value|stat|metric|count|total|number)\\s*:\\s*[\"'][+↑↓]?\\d{1,3}(?:[.,]\\d{1,3})*\\s*(?:%|[kKM]\\+?|\\+)[\"']"
       ]
+    },
+    {
+      "id": "truth.placeholder-content",
+      "severity": "noticeable",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart",
+        "xml"
+      ],
+      "message": "Placeholder content shipped as if it were real: Lorem ipsum, John Doe, Acme Inc.",
+      "fix": "Use the product's real data, or realistic sample data that says it is a sample. A reviewer cannot judge a layout filled with filler.",
+      "ignoreCase": true,
+      "patterns": [
+        "\\blorem ipsum\\b",
+        "\\bdolor sit amet\\b",
+        "\\b(?:john|jane) doe\\b",
+        "\\bacme (?:inc|corp|co|ltd)\\b",
+        "\\b123 main st(?:reet)?\\b",
+        "\\b(?:ahmet|ayşe|mehmet) yılmaz\\b"
+      ]
     }
   ]
 }

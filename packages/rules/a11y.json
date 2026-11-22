@@ -101,6 +101,59 @@
         "userScalable:\\s*false",
         "maximumScale:\\s*1(?:\\.0+)?(?!\\d)"
       ]
+    },
+    {
+      "id": "a11y.low-contrast",
+      "severity": "noticeable",
+      "platforms": [
+        "mobile",
+        "web",
+        "spatial",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "css"
+      ],
+      "message": "Text and background in the same rule fail WCAG contrast (4.5:1, or 3:1 for large text).",
+      "fix": "Darken the text or the surface until the pair passes, and keep the fix in the theme tokens so every screen gets it. Check the dark theme too.",
+      "patterns": [
+        {
+          "re": "\\{[^{}]{0,1500}\\}",
+          "contrast": {
+            "min": 4.5,
+            "large": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "a11y.tiny-text",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "spatial",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "css",
+        "kotlin",
+        "dart"
+      ],
+      "message": "Text smaller than 11px.",
+      "fix": "Body at 16px (17pt on iOS, 16sp on Android), secondary text no smaller than 12. Under 11 is unreadable for many people and below both platforms' minimum.",
+      "patterns": [
+        "font-size:\\s*(?:[1-9]|10)(?:\\.\\d+)?px",
+        "font-size:\\s*0?\\.(?:[1-5]\\d*|6(?:[0-7]\\d*)?)rem",
+        "\\bfontSize\\s*[:=]\\s*\\{?\\s*(?:[1-9]|10)(?:\\.\\d+)?\\b(?!\\.\\d)",
+        "\\btext-\\[(?:(?:[1-9]|10)(?:\\.\\d+)?px|0?\\.(?:[1-5]\\d*|6(?:[0-7]\\d*)?)rem)\\]"
+      ]
     }
   ]
 }

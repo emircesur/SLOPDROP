@@ -96,7 +96,7 @@
       "patterns": [
         "welcome back[^'<\\n]{0,40}!",
         {
-          "re": "(?<!\\p{L})(?:welcome back|good (?:morning|afternoon|evening)|hey there|g[üu]naydın|[iİ]yi (?:akşamlar|günler|geceler|sabahlar)|(?:tekrar )?hoş ?geldin(?:iz)?|merhaba)\\s*,\\s*(?:\\$\\{|\\{|\\p{Lu})",
+          "re": "(?<!\\p{L})(?:welcome back|good (?:morning|afternoon|evening)|hey there|hello|hi|g[üu]naydın|[iİ]yi (?:akşamlar|günler|geceler|sabahlar)|(?:tekrar )?hoş ?geldin(?:iz)?|merhaba)\\s*,\\s*(?:\\$\\{|\\{|\\p{Lu})",
           "flags": "u"
         },
         {
@@ -559,6 +559,34 @@
       ],
       "message": "Em dash used as the default rhythm.",
       "fix": "None in short copy; one or two in longer copy only when they clearly beat commas, periods, or parentheses."
+    },
+    {
+      "id": "copy.exclamation",
+      "severity": "minor",
+      "platforms": [
+        "mobile",
+        "web",
+        "universal",
+        "unknown"
+      ],
+      "stacks": [
+        "js",
+        "web",
+        "swift",
+        "kotlin",
+        "dart",
+        "xml"
+      ],
+      "message": "Exclamation marks across the interface copy: the product sounds like it is cheering.",
+      "fix": "Keep one for a real celebration, if any. Errors, empty states, and confirmations read calmer and more trustworthy without.",
+      "heuristic": true,
+      "perFile": true,
+      "minMatches": 3,
+      "patterns": [
+        ">[^<>{}\\n=]{2,120}!\\s*<",
+        "(?:title|label|text|message|description)\\s*[=:]\\s*\\{?\\s*['\"`][^'\"`\\n]{2,120}!['\"`]",
+        "\\bText\\(\\s*\"[^\"\\n]{2,120}!\""
+      ]
     }
   ]
 }

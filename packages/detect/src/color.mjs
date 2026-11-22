@@ -108,3 +108,110 @@ export function colorPasses(color, spec) {
 export function textHasColor(text, spec) {
   return parseColors(text).some((color) => colorPasses(color, spec));
 }
+
+// ---------- contrast ----------
+//
+// A pattern may carry a `contrast` spec: { "min": 4.5, "large": 3 }.
+// The match is one declaration block (CSS `{...}` or an inline style object).
+// When the block sets both a text color and a solid background as literal,
+// opaque colors, the hit counts only if their WCAG ratio is below the bar.
+// Text at 24px / 1.5rem or larger, or 18.66px / 1.17rem bold, uses `large`.
+
+const SOLID_NAMED = {
+  white: [255, 255, 255],
+  black: [0, 0, 0],
+  gray: [128, 128, 128],
+  grey: [128, 128, 128],
+  silver: [192, 192, 192],
+  lightgray: [211, 211, 211],
+  lightgrey: [211, 211, 211],
+  darkgray: [169, 169, 169],
+  darkgrey: [169, 169, 169],
+  gainsboro: [220, 220, 220],
+  whitesmoke: [245, 245, 245],
+};
+
+function hslToRgb(h, s, l) {
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  const [r, g, b] =
+    h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+}
+
+/**
+ * One CSS color value to [r, g, b, a], or null when it is not a single
+ * literal color (a var(), a gradient, an image, `transparent`, `inherit`).
+ */
+export function parseSolid(value) {
+  const v = value.trim().replace(/^['"]|['"]$/g, "").replace(/\s*!important$/, "").trim().toLowerCase();
+  let m = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(v);
+  if (m) {
+    let d = m[1];
+    if (d.length <= 4) d = [...d].map((c) => c + c).join("");
+    return [parseInt(d.slice(0, 2), 16), parseInt(d.slice(2, 4), 16), parseInt(d.slice(4, 6), 16), d.length === 8 ? parseInt(d.slice(6, 8), 16) / 255 : 1];
+  }
+  m = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+%?))?\s*\)$/.exec(v);
+  if (m) return [Number(m[1]), Number(m[2]), Number(m[3]), alphaOf(m[4])];
+  m = /^hsla?\(\s*([\d.]+)(?:deg)?[\s,]+([\d.]+)%[\s,]+([\d.]+)%(?:[\s,/]+([\d.]+%?))?\s*\)$/.exec(v);
+  if (m) return [...hslToRgb(Number(m[1]) % 360, Number(m[2]) / 100, Number(m[3]) / 100), alphaOf(m[4])];
+  if (SOLID_NAMED[v]) return [...SOLID_NAMED[v], 1];
+  if (NAMED[v]) {
+    const d = NAMED[v].slice(1);
+    return [parseInt(d.slice(0, 2), 16), parseInt(d.slice(2, 4), 16), parseInt(d.slice(4, 6), 16), 1];
+  }
+  return null;
+}
+
+function luminance([r, g, b]) {
+  const lin = (c) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/** WCAG 2 contrast ratio between two opaque colors. */
+export function contrastRatio(a, b) {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+const DECL = (name) => new RegExp(String.raw`(?<![\w-])${name}\s*:\s*([^;}\n,]+?(?:\([^)]*\))?)\s*(?=[;},\n]|$)`, "gi");
+
+function lastDecl(block, name) {
+  let value = null;
+  for (const m of block.matchAll(DECL(name))) value = m[1];
+  return value;
+}
+
+function isLargeText(block) {
+  const size = lastDecl(block, "font-?size");
+  const weight = lastDecl(block, "font-?weight");
+  if (!size) return false;
+  const m = /([\d.]+)\s*(px|rem|em|pt)?/.exec(size.replace(/['"]/g, ""));
+  if (!m) return false;
+  const n = Number(m[1]);
+  const px = m[2] === "rem" || m[2] === "em" ? n * 16 : m[2] === "pt" ? n * (4 / 3) : n;
+  const bold = weight && (/bold/.test(weight) || Number(weight) >= 700);
+  return px >= 24 || (bold && px >= 18.66);
+}
+
+/** The contrast check for one block, or null when the block has no pair to judge. */
+export function blockContrast(block) {
+  const fg = lastDecl(block, "color");
+  const bg = lastDecl(block, "background-color") ?? lastDecl(block, "background(?:Color)?");
+  if (!fg || !bg) return null;
+  const a = parseSolid(fg);
+  const b = parseSolid(bg);
+  if (!a || !b || a[3] < 1 || b[3] < 1) return null;
+  return { ratio: contrastRatio(a, b), large: isLargeText(block) };
+}
+
+/** True when the block's text/background pair fails the spec. */
+export function failsContrast(block, spec) {
+  const result = blockContrast(block);
+  if (!result) return false;
+  return result.ratio < (result.large ? (spec.large ?? 3) : (spec.min ?? 4.5));
+}

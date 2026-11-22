@@ -31,6 +31,15 @@ for (const rule of rules) {
     } catch (err) {
       errors.push(`${where}: bad pattern ${JSON.stringify(pattern)} (${err.message})`);
     }
+    if (typeof pattern === "object" && pattern.contrast !== undefined) {
+      const c = pattern.contrast;
+      for (const key of Object.keys(c)) if (!["min", "large"].includes(key)) errors.push(`${where}: unknown contrast key "${key}"`);
+      for (const key of ["min", "large"]) {
+        if (c[key] !== undefined && !(typeof c[key] === "number" && c[key] >= 1 && c[key] <= 21)) {
+          errors.push(`${where}: contrast.${key} must be a ratio between 1 and 21`);
+        }
+      }
+    }
     if (typeof pattern === "object" && pattern.colors !== undefined) {
       const c = pattern.colors;
       const unit = (v) => typeof v === "number" && v >= 0 && v <= 1;
